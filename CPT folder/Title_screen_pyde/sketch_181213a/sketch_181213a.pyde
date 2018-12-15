@@ -21,9 +21,5 @@ def title_screen():
         rect(0, 0, 640, 480)
         
 
-def keyPressed():
-    return key
-
-
 def mousePressed():
     print(str(mouseX) + ", " + str(mouseY))

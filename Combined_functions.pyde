@@ -33,7 +33,7 @@ def draw():
             print_options(0, 4, enemy.display_items())
             
         else:
-            mercy()
+            print_options(0, 2, enemy.display_mercy_options())
         
         
 def title_screen():
@@ -96,7 +96,7 @@ def fight():
     text("Hit enemy", 40, 259)
     
 
-def print_options(min_range, max_range, options_list):
+def print_options(min_range, max_range, options_list): # Doesn't display first options
     # Will need to abstract text locations
     for option in range(min_range, max_range):
         if option < 3: # Need fix
@@ -131,4 +131,3 @@ class Enemy:
         return mercy_options
     
     # Gotta make new functions for items, mercy, and act. One is for displaying and one is for changing/excecuting
-        

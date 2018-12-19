@@ -30,10 +30,10 @@ def draw():
             print_options(1, 5, enemy.patch())
                     
         elif user_option_selection_counter == 2:
-            print_options(0, 4, enemy.display_items())
+            print_options(0, 4, enemy.items)
             
         else:
-            print_options(0, 2, enemy.display_mercy_options())
+            print_options(0, 2, enemy.mercy_options)
         
         
 def title_screen():
@@ -121,13 +121,5 @@ class Enemy:
     def patch(self):
         enemy_attributes = ["Patch", "Spray", "Heat", "Cut", "Sew", "Hi I'm Patch"]
         return enemy_attributes
-    
-    
-    def display_items(self):
-        return items
-    
-    
-    def display_mercy_options(self):
-        return mercy_options
     
     # Gotta make new functions for items, mercy, and act. One is for displaying and one is for changing/excecuting

@@ -1,4 +1,5 @@
 user_option_selection_counter = 0
+option_selection = 0
 slide = 0
 
 def setup():
@@ -10,6 +11,7 @@ def setup():
 
 def draw():
     global slide, user_option_selection_counter
+    enemy = Enemy()
     
     background(0)
     
@@ -20,23 +22,25 @@ def draw():
         battle_screen_display()
         
     if slide == 1:
-        battle_screen_function()
+        user_selection()
         fill(255)
         text("Enemy dialogue", 60, 320)    
     elif slide == 2:
-        enemy = Enemy()
-        locked_option_selection = user_option_selection_counter
-        user_option_selection_counter = 0 # Currently this breaks the program since it cycles rapidly (always changes to the first option). However, the plan is to build another function that takes care of all the user choosing stuff and use while loops which means this won't break the program
         fill(255)
         
-        if locked_option_selection == 0:
+        if user_option_selection_counter == 0:
             fight()
-        elif locked_option_selection == 1:
-            print_options(1, 5, enemy.patch())        
-        elif locked_option_selection == 2:
+        elif user_option_selection_counter == 1:
+            print_options(1, 5, enemy.patch())
+            user_selection()        
+        elif user_option_selection_counter == 2:
             print_options(0, 4, enemy.items)
+            user_selection()
         else:
             print_options(0, 2, enemy.mercy_options)
+            user_selection()
+    elif slide == 3:
+        print("slide 3")
         
 
 def title_screen():
@@ -62,26 +66,37 @@ def battle_screen_display():
     rect(483, 417, 628, 467)
     
     
-def battle_screen_function():
-    global user_option_selection_counter
+def user_selection():
+    global user_option_selection_counter, option_selection
     player_pos = [32, 442]
         
-    # Player location changer (Could refactor)
-    if user_option_selection_counter == 0:
-        player_pos = [32, 442]
-    elif user_option_selection_counter == 1:
-        player_pos = [189, 442]
-    elif user_option_selection_counter == 2:
-        player_pos = [346, 442]
-    else:
-        player_pos = [503, 442]
+    if slide == 1:
+        # Player location changer (Could refactor)
+        if user_option_selection_counter == 0:
+            player_pos = [32, 442]
+        elif user_option_selection_counter == 1:
+            player_pos = [189, 442]
+        elif user_option_selection_counter == 2:
+            player_pos = [346, 442]
+        else:
+            player_pos = [503, 442]
+    elif slide == 2:
+        # Player location changer (Could refactor)
+        if option_selection == 0:
+            player_pos = [56, 320]
+        elif option_selection == 1:
+            player_pos = [207, 320]
+        elif option_selection == 2:
+            player_pos = [358, 320]
+        else:
+            player_pos = [509, 320]
         
     # Player
     ellipse(player_pos[0], player_pos[1], 10, 10)
 
 
 def keyPressed():
-    global user_option_selection_counter, slide
+    global user_option_selection_counter, slide, option_selection
     
     if key == "z":
         slide += 1
@@ -95,6 +110,12 @@ def keyPressed():
             user_option_selection_counter += 1
         elif keyCode == LEFT and user_option_selection_counter > 0:
             user_option_selection_counter -= 1
+    if slide == 2:
+        # Changes option selection counter
+        if keyCode == RIGHT and option_selection < 3:
+            option_selection += 1
+        elif keyCode == LEFT and option_selection > 0:
+            option_selection -= 1
             
 
 def fight():

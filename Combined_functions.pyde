@@ -9,33 +9,36 @@ def setup():
 
 
 def draw():
-    global slide
+    global slide, user_option_selection_counter
     
     background(0)
     
     if slide == 0:
         title_screen()
         
-    elif slide == 1:
-        battle_screen()
+    if slide == 1 or slide == 2:
+        battle_screen_display()
         
+    if slide == 1:
+        battle_screen_function()
+        fill(255)
+        text("Enemy dialogue", 60, 320)    
     elif slide == 2:
         enemy = Enemy()
+        locked_option_selection = user_option_selection_counter
+        user_option_selection_counter = 0 # Currently this breaks the program since it cycles rapidly (always changes to the first option). However, the plan is to build another function that takes care of all the user choosing stuff and use while loops which means this won't break the program
         fill(255)
         
-        if user_option_selection_counter == 0:
+        if locked_option_selection == 0:
             fight()
-            
-        elif user_option_selection_counter == 1:
-            print_options(1, 5, enemy.patch())
-                    
-        elif user_option_selection_counter == 2:
+        elif locked_option_selection == 1:
+            print_options(1, 5, enemy.patch())        
+        elif locked_option_selection == 2:
             print_options(0, 4, enemy.items)
-            
         else:
             print_options(0, 2, enemy.mercy_options)
         
-        
+
 def title_screen():
     fill(255)
     textSize(80)
@@ -44,10 +47,7 @@ def title_screen():
     text("Press 'z' to start", width/2 - 70, height/2 + 70)
 
         
-def battle_screen():
-    global user_option_selection_counter
-    player_pos = [32, 442]
-    
+def battle_screen_display():    
     # Textbox
     fill(0)
     stroke(255)
@@ -60,6 +60,11 @@ def battle_screen():
     rect(169, 417, 314, 467)
     rect(326, 417, 471, 467)
     rect(483, 417, 628, 467)
+    
+    
+def battle_screen_function():
+    global user_option_selection_counter
+    player_pos = [32, 442]
         
     # Player location changer (Could refactor)
     if user_option_selection_counter == 0:
@@ -96,13 +101,11 @@ def fight():
     text("Hit enemy", 40, 259)
     
 
-def print_options(min_range, max_range, options_list): # Doesn't display first options
-    # Will need to abstract text locations
-    for option in range(min_range, max_range):
-        if option < 3: # Need fix
-            text(options_list[option], 40 + (100 * (option - 1)), 259)
-        else:
-            text(options_list[option], 40 + (100 * (option - 3)), 300)
+def print_options(min_range, max_range, options_list):
+    slice_list = options_list[min_range: max_range]
+    
+    for option in range(0, len(slice_list)):
+        text(slice_list[option], 60 + (option * 151), 320)
 
 
 def mousePressed():
@@ -112,7 +115,6 @@ def mousePressed():
 # Should put in seperate tab?
 # Why does it force me to make an argument?
 class Enemy:
-    global enemy_attributes, items, mercy_options # Need fix
     enemy_attributes = []
     items = ["Food", "Food", "Food", "Food"]
     mercy_options = ["Spare", "Flee"]

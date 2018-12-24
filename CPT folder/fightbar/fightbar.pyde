@@ -1,38 +1,52 @@
-OFFSET = 0
-MOVING = False 
+offset = 0
+slide = 0
 
 def setup():
     size(640, 480)
     rectMode(CORNERS)
-    text_font = loadFont("CharterBT-Bold-48.vlw")
-    textFont(text_font)
-
+    
 
 def draw():
     background(0)
-    fight_option()        
+    
+    if slide == 0:
+        fight_option()
+    elif slide == 1:
+        print(user_attack_damage_calc())
+    
     
 def fight_option():
-    global OFFSET, MOVING
+    global offset, slide
+    
+    # Box
     fill(0)
     stroke(255)
     strokeWeight(5)
     rect(70, 276, 570, 360)
+    
+    # Red line
     stroke(255, 59, 59)
     rect(320, 276, 320, 360)
+    
     stroke(255)
     strokeWeight(10)
-    rect(OFFSET + 70, 276, OFFSET + 80, 360)
-    if OFFSET >= 490:
-        MOVING = False 
-    if MOVING == True:
-        OFFSET += 8
+    rect(70 + offset, 276, 73 + offset, 360)
+    
+    if offset >= 490:
+        slide += 1
+
+    offset += 2
+    
+
+def user_attack_damage_calc():
+    global offset
+    # Need to abstract midpoint and endpoints somehow
+    damage = int(24.5 - (abs(245 - offset) / 10))
+    return damage
         
-def keyReleased(): 
-    global MOVING
-    if key.lower() == "z":
-        if OFFSET == 0:
-            MOVING = True
-        else:
-            MOVING = False
         
+def keyReleased():
+    global slide
+    
+    if key == "z":
+        slide += 1

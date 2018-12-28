@@ -1,6 +1,7 @@
 import random
+import time
 
-player_pos = []
+player_pos = [320, 308]
 obstacle_pos = []
 obstacle_pos_checker = []
 offset = 0
@@ -23,12 +24,27 @@ def draw():
     if slide == 0:
         battle_screen_display()
         user_movement()
-        attack1()
+        patch_attack1() # Change this each time
         health -= damage_calc(obstacle_pos, player_pos)
         print(health)
         if len(obstacle_pos) == 0:
             slide += 1
+  
     
+def patch_attack1():
+        global slide, offset, obstacle_pos
+        
+        if offset < 220:
+            offset += 2
+            
+        obstacle_pos = [width/2  - 110, height/2 + 67.5, width/2 - 110 + offset, height/2 + 139]
+        
+        rect(obstacle_pos[0], obstacle_pos[1], obstacle_pos[2], obstacle_pos[3])
+        
+        if offset >= 220:
+            time.sleep(1)
+            slide += 1
+        
 
 def battle_screen_display():    
     # Fight box
@@ -46,7 +62,6 @@ def battle_screen_display():
 
 
 def user_movement():
-    global player_pos # Ya so this is breaking it
     
     if keyPressed:
         if keyCode == UP:

@@ -12,6 +12,8 @@ health = 20
 slide = 0
 seconds_elapsed = 0
 
+keys_pressed = [False for key_code in range(256)]
+
 def setup():
     size(640, 480)
     rectMode(CORNERS)
@@ -26,9 +28,11 @@ def draw():
         user_movement()
         patch_attack1() # Change this each time
         health -= damage_calc(obstacle_pos, player_pos)
-        print(health)
         if len(obstacle_pos) == 0:
             slide += 1
+    
+    battle_screen_display()
+    user_movement()
   
     
 def patch_attack1():
@@ -62,16 +66,14 @@ def battle_screen_display():
 
 
 def user_movement():
-    
-    if keyPressed:
-        if keyCode == UP:
-            player_pos[1] -= 1.5
-        elif keyCode == DOWN:
-            player_pos[1] += 1.5
-        elif keyCode == LEFT:
-            player_pos[0] -= 1.5
-        elif keyCode == RIGHT:
-            player_pos[0] += 1.5
+    if keys_pressed[38]:
+        player_pos[1] -= 1.5
+    if keys_pressed[40]:
+        player_pos[1] += 1.5
+    if keys_pressed[37]:
+        player_pos[0] -= 1.5
+    if keys_pressed[39]:
+        player_pos[0] += 1.5
             
     if not(player_pos[0] >= (210 + 10)):
         player_pos[0] = (210 + 10)
@@ -83,6 +85,16 @@ def user_movement():
         player_pos[1] = (379 - 10)
             
     draw_user(player_pos[0], player_pos[1])
+    
+    
+def keyPressed():
+    global keys_pressed
+    keys_pressed[keyCode] = True
+    
+    
+def keyReleased():
+    global keys_pressed
+    keys_pressed[keyCode] = False
     
 
 def draw_user(x_pos, y_pos):

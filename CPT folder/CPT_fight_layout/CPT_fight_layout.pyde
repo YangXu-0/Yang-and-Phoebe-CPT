@@ -4,11 +4,12 @@ import time
 user_option_selection_counter = 0
 option_selection = 0
 slide = 0
-player_pos = [320, 308] # Might need to change later cause "doesn't make sense"
+player_pos = [320, 308]
 offset = 0 # For some reason it doesn't repeatedly add to this when it's a class variable so gotta fix later
 user = None
 enemy = None
 keys_pressed = [False for key_code in range(256)]
+enemy_dialogue = []
 
 def setup():
     global user, enemy
@@ -38,7 +39,7 @@ def draw():
         user_selection()
         fill(255)
         textSize(20)
-        text("Enemy dialogue", 60, 320)    
+        text(enemy_dialogue[0], 60, 320)    
     elif slide == 2:
         fill(255)
         
@@ -58,29 +59,27 @@ def draw():
                 user.spare(enemy.enemy_attributes)
     elif slide == 3:
         if user_option_selection_counter == 0:
-            if enemy.enemy_attributes[2] - user_attack_damage_calc() < 0:
-                enemy.enemy_attributes[2] = 0
+            if enemy.enemy_attributes[1] - user_attack_damage_calc() < 0:
+                enemy.enemy_attributes[1] = 0
             else:
-                enemy.enemy_attributes[2] -= user_attack_damage_calc()
-            if enemy.enemy_attributes[2] <= 0:
+                enemy.enemy_attributes[1] -= user_attack_damage_calc()
+            if enemy.enemy_attributes[1] <= 0:
                 slide = 5
             else:
                 offset = 0
                 slide += 1
         elif user_option_selection_counter == 1:
             enemy.act(option_selection)
-            slide += 1
+            
         elif user_option_selection_counter == 2:
             user.use_item(option_selection)
             slide += 1
         else:
             slide += 1
     elif slide == 4:
-        user_movement(1.5)
         enemy.patch_attack1()
+        user_movement(1.5)
         user.user_attributes[0] -= enemy.damage_calc()
-        if user.user_attributes[0] <= 0:
-            slide = 6
     elif slide == 5:
         text("You win. Normally, the win screen would go here", 60, 320)
     elif slide == 6:
@@ -128,20 +127,20 @@ def battle_screen_display(user_info, enemy_info):
     fill(255)
     textSize(16)
     text("Player Health {}/{}".format(user_info.user_attributes[0], user_info.user_attributes[1]), width/2 - 308, height/2 + 165)
-    text("Enemy Health {}/{}".format(enemy_info.enemy_attributes[2], enemy_info.enemy_attributes[3]), width/2 - 120, height/2 + 165)
+    text("Enemy Health {}/{}".format(enemy_info.enemy_attributes[1], enemy_info.enemy_attributes[2]), width/2 - 120, height/2 + 165)
     
     
 def user_selection():
     global user_option_selection_counter, option_selection
-    player_pos = []
+    selection_pos = []
         
     if slide == 1:
-        player_pos = [37 + (157 * user_option_selection_counter), 442]
+        selection_pos = [37 + (157 * user_option_selection_counter), 442]
     elif slide == 2:
-        player_pos = [56 + (151 * option_selection), 320]
+        selection_pos = [56 + (151 * option_selection), 320]
 
     # Player
-    draw_user(player_pos[0], player_pos[1], 13)
+    draw_user(selection_pos[0], selection_pos[1], 13)
 
 
 def fight():
@@ -265,12 +264,15 @@ class Enemy:
     IMMUNE_TIME = 3
 
     def patch(self):
-        self.enemy_attributes = ["Patch", "Hi I'm Patch", 50, 50, False]
-        self.act_path = ["Spray", "Heat", "Cut", "Sew", "0123", "", "u did 1", "u did 2", "u did 3", "u did 4"]
+        global enemy_dialogue
+        enemy_dialogue = ["Hi, I'm Patch", "Patch is annoyed", "Patch smiles a bit", "Patch is happy", "Patch can barely stand"]
+        self.enemy_attributes = ["Patch", 50, 50, False]
+        self.act_path = ["Spray", "Heat", "Cut", "Sew", "0123", ""]
         
     
     def act(self, act_index):
         index = 0
+        number_correct_choices = 0
 
         if self.act_path[5] == "":
             self.act_path[5] = str(act_index)
@@ -280,10 +282,13 @@ class Enemy:
         for i in range(0, len(self.act_path[4])):
             if self.act_path[5][index: ].count(self.act_path[4][i]) > 0:
                 index = self.act_path[5][index: ].find(self.act_path[4][i])
+                number_correct_choices += 1
             else:
+                text(enemy_dialogue[number_correct_choices + 1], 60, 320)
                 break
         else:
-            self.enemy_attributes[4] = True
+            text("{} doesn't want to fight anymore".format(self.enemy_attributes[0]), 60, 320)
+            self.enemy_attributes[3] = True
     
     
     def damage_calc(self):
@@ -304,7 +309,7 @@ class Enemy:
     
             
     def patch_attack1(self):
-        global slide, offset, keys_pressed, player_pos
+        global offset, enemy
         
         if offset < 220:
             offset += 2
@@ -314,17 +319,27 @@ class Enemy:
         fill(0, 0, 255)
         rect(self.obstacle_pos[0], self.obstacle_pos[1], self.obstacle_pos[2], self.obstacle_pos[3])
         
+        enemy.end_attack()
+        
+            
+    def end_attack(self):
+        global offset, user, keys_pressed, player_pos, slide
         if offset >= 220:
+            self.obstacle_pos = []  # Consider moving player pos reset to damage function
             offset = 0
             keys_pressed = [False for key_code in range(256)]
             player_pos = [320, 308]
             time.sleep(0.25)
             slide = 1
+        elif user.user_attributes[0] <= 0:
+            time.sleep(0.2)
+            slide = 6
+        
 
 class User:
-    user_attributes = [20, 20]
+    user_attributes = [4, 20]
     items = ["Food", "Food", "Food", "Food"]
-    item_values = [10, 4, 6, 2]
+    item_values = [10, 4, 6, 2]  # Do I need to use dictionaries?
     
     def use_item(self, item_index):
         value = self.item_values[item_index]
@@ -338,7 +353,7 @@ class User:
             
     
     def spare(self, enemy_attributes):
-        if enemy_attributes[4] == True:
+        if enemy_attributes[3] == True:
             return 5
         else:
             text("You tried to spare the enemy but it missed", 60, 320)

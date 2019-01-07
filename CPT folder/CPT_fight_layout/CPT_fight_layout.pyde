@@ -6,18 +6,25 @@ option_selection = 0
 slide = 0
 player_pos = [320, 308]
 offset = 0 # For some reason it doesn't repeatedly add to this when it's a class variable so gotta fix later
-user = None
-enemy = None
 keys_pressed = [False for key_code in range(256)]
 enemy_dialogue = []
+movement = True
+text_list_index = 0
+ENEMY_ATTACK_BOUNDARIES = [430, 379, 210, 236]
+WORLD_BOUNDARIES = [304, -563, -644, 224]
+map_offset = [0, 0]
+
 
 def setup():
-    global user, enemy
+    global user, enemy, landscape, PLAYER_POS_WORLD
     size(640, 480)
     rectMode(CORNERS)
 
     text_font = loadFont("CharterBT-Bold-48.vlw")
     textFont(text_font)
+    
+    landscape = loadImage("HOSA skeleton diagram.PNG")
+    PLAYER_POS_WORLD = [width/2, height/2]
     
     enemy = Enemy()
     user = User()
@@ -26,21 +33,33 @@ def setup():
 
 
 def draw():
-    global slide, user_option_selection_counter, option_selection, user, enemy, offset
+    global slide, user_option_selection_counter, option_selection, user, enemy, offset, player_pos, movement, map_offset
     
     background(0)
         
-    if slide == 1 or slide == 2 or slide == 3 or slide == 4:
+    if slide == 2 or slide == 3 or slide == 4 or slide == 5:
         battle_screen_display(user, enemy)
       
     if slide == 0:
-        title_screen()      
+        title_screen()
     elif slide == 1:
+        landscape.resize(900, 900)
+        image(landscape, map_offset[0], map_offset[1])
+        rect(310 + map_offset[0], 59 + map_offset[1], 330 + map_offset[0], 72 + map_offset[1])
+        draw_user(PLAYER_POS_WORLD[0], PLAYER_POS_WORLD[1], 13)
+        
+        if movement:
+            map_offset = user_movement(-1.5, map_offset, WORLD_BOUNDARIES) # Is using a negative speed ok?
+        
+        if map_offset[1] >= 174:
+            movement = False
+            textbox([11, 324], [629, 468])
+    elif slide == 2:
         user_selection()
         fill(255)
         textSize(20)
-        text(enemy_dialogue[0], 60, 320)    
-    elif slide == 2:
+        text(enemy_dialogue[2], 60, 320)    
+    elif slide == 3:
         fill(255)
         
         if user_option_selection_counter == 0:
@@ -57,14 +76,14 @@ def draw():
                 slide = int(user.spare(enemy.enemy_attributes))
             except:
                 user.spare(enemy.enemy_attributes)
-    elif slide == 3:
+    elif slide == 4:
         if user_option_selection_counter == 0:
             if enemy.enemy_attributes[1] - user_attack_damage_calc() < 0:
                 enemy.enemy_attributes[1] = 0
             else:
                 enemy.enemy_attributes[1] -= user_attack_damage_calc()
             if enemy.enemy_attributes[1] <= 0:
-                slide = 5
+                slide = 6
             else:
                 offset = 0
                 slide += 1
@@ -76,13 +95,14 @@ def draw():
             slide += 1
         else:
             slide += 1
-    elif slide == 4:
-        enemy.patch_attack1()
-        user_movement(1.5)
-        user.user_attributes[0] -= enemy.damage_calc()
     elif slide == 5:
-        text("You win. Normally, the win screen would go here", 60, 320)
+        enemy.patch_attack1()
+        player_pos = user_movement(1.5, player_pos, ENEMY_ATTACK_BOUNDARIES)
+        draw_user(player_pos[0], player_pos[1], 13)
+        user.user_attributes[0] -= enemy.damage_calc()
     elif slide == 6:
+        text("You win. Normally, the win screen would go here", 60, 320)
+    elif slide == 7:
         text("You lose. Normally, the lose screen would go here", 60, 320)
         
 
@@ -95,7 +115,7 @@ def title_screen():
 
         
 def battle_screen_display(user_info, enemy_info):   
-    if slide == 4:
+    if slide == 5:
         # Fight box
         fill(0)
         stroke(255)
@@ -130,13 +150,25 @@ def battle_screen_display(user_info, enemy_info):
     text("Enemy Health {}/{}".format(enemy_info.enemy_attributes[1], enemy_info.enemy_attributes[2]), width/2 - 120, height/2 + 165)
     
     
+def textbox(corner_one, corner_two):
+    global text_list_index, slide, enemy
+        
+    fill(0)
+    rect(corner_one[0], corner_one[1], corner_two[0], corner_two[1])
+    fill(255)
+    if text_list_index < 2:
+        text(enemy_dialogue[text_list_index], 15, 396)
+    else:
+        slide += 1
+    
+    
 def user_selection():
     global user_option_selection_counter, option_selection
     selection_pos = []
         
-    if slide == 1:
+    if slide == 2:
         selection_pos = [37 + (157 * user_option_selection_counter), 442]
-    elif slide == 2:
+    elif slide == 3:
         selection_pos = [56 + (151 * option_selection), 320]
 
     # Player
@@ -175,32 +207,37 @@ def user_attack_damage_calc():
     return damage
     
 
-def user_movement(speed):
+def user_movement(speed, position, boundary_values):
     if keys_pressed[38]:
-        player_pos[1] -= speed
+        position[1] -= speed
     if keys_pressed[40]:
-        player_pos[1] += speed
+        position[1] += speed
     if keys_pressed[37]:
-        player_pos[0] -= speed
+        position[0] -= speed
     if keys_pressed[39]:
-        player_pos[0] += speed
-            
-    if not(player_pos[0] >= (210 + 10)):
-        player_pos[0] = (210 + 10)
-    if not(player_pos[0] <= (430 - 10)):
-        player_pos[0] = (430 - 10)
-    if not(player_pos[1] >= (236 + 10)):
-        player_pos[1] = (236 + 10)
-    if not(player_pos[1] <= (379 - 10)):
-        player_pos[1] = (379 - 10)
-            
-    draw_user(player_pos[0], player_pos[1], 13)
+        position[0] += speed
+    
+    """  
+    if not(position[0] >= (boundary_values[2] + 10)):
+        position[0] = (boundary_values[0] + 10)
+    if not(position[0] <= (boundary_values[0] - 10)):
+        position[0] = (430 - 10)
+    if not(player_pos[1] >= (boundary_values[3] + 10)):
+        position[1] = (boundary_values[3] + 10)
+    if not(position[1] <= (boundary_values[1] - 10)):
+        position[1] = (boundary_values[1] - 10)
+    """
+    return position
     
     
 def draw_user(x_pos, y_pos, length):
-    fill(255, 0, 0)
-    noStroke()
-    ellipse(x_pos, y_pos, length, length)
+    if slide == 1:
+        fill(255, 255, 0)
+        ellipse(x_pos, y_pos, length, length)
+    else:
+        fill(255, 0, 0)
+        noStroke()
+        ellipse(x_pos, y_pos, length, length)
     
 
 def print_options(min_range, max_range, options_list):
@@ -213,29 +250,32 @@ def print_options(min_range, max_range, options_list):
 def keyPressed():
     global keys_pressed
     
-    if slide == 4:
+    if slide == 5 or slide == 1:
         keys_pressed[keyCode] = True
 
 
 def keyReleased():
-    global user_option_selection_counter, slide, option_selection, keys_pressed
+    global user_option_selection_counter, slide, option_selection, keys_pressed, text_list_index
     
-    if key == "z" and slide in [0, 1, 2, 3]:
-        time.sleep(0.15)
-        slide += 1
-        print(slide)
+    if key == "z":
+        if slide == 1 and movement == False:
+            text_list_index += 1
+        elif slide in [0, 2, 3, 4]:
+            time.sleep(0.15)
+            slide += 1
+            print(slide)
     
-    if key == "x" and slide in [2] and user_option_selection_counter not in [0, 3]:
+    if key == "x" and slide in [3] and user_option_selection_counter not in [0, 3]:
         slide -= 1
         print(slide)
     
-    if slide == 1:
+    if slide == 2:
         # Changes option selection counter
         if keyCode == RIGHT and user_option_selection_counter < 3:
             user_option_selection_counter += 1
         elif keyCode == LEFT and user_option_selection_counter > 0:
             user_option_selection_counter -= 1
-    if slide == 2:
+    if slide == 3:
         # Changes option selection counter
         if keyCode == RIGHT:
             if user_option_selection_counter == 2 and option_selection < len(user.items) - 1:
@@ -245,7 +285,7 @@ def keyReleased():
         elif keyCode == LEFT and option_selection > 0:
             option_selection -= 1
             
-    if slide == 4:
+    if slide == 5 or slide == 1:
         keys_pressed[keyCode] = False
 
 
@@ -265,7 +305,7 @@ class Enemy:
 
     def patch(self):
         global enemy_dialogue
-        enemy_dialogue = ["Hi, I'm Patch", "Patch is annoyed", "Patch smiles a bit", "Patch is happy", "Patch can barely stand"]
+        enemy_dialogue = ["Hi", "Let's fight", "Hi, I'm Patch", "Patch is annoyed", "Patch smiles a bit", "Patch is happy", "Patch can barely stand"]
         self.enemy_attributes = ["Patch", 50, 50, False]
         self.act_path = ["Spray", "Heat", "Cut", "Sew", "0123", ""]
         
@@ -330,10 +370,10 @@ class Enemy:
             keys_pressed = [False for key_code in range(256)]
             player_pos = [320, 308]
             time.sleep(0.25)
-            slide = 1
+            slide = 2
         elif user.user_attributes[0] <= 0:
             time.sleep(0.2)
-            slide = 6
+            slide = 7
         
 
 class User:
@@ -354,6 +394,6 @@ class User:
     
     def spare(self, enemy_attributes):
         if enemy_attributes[3] == True:
-            return 5
+            return 6
         else:
             text("You tried to spare the enemy but it missed", 60, 320)

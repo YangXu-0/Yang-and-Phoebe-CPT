@@ -217,7 +217,7 @@ def user_movement(speed, position, boundary_values):
     if keys_pressed[39]:
         position[0] += speed
     
-    """  
+    """ 
     if not(position[0] >= (boundary_values[2] + 10)):
         position[0] = (boundary_values[0] + 10)
     if not(position[0] <= (boundary_values[0] - 10)):
@@ -227,6 +227,7 @@ def user_movement(speed, position, boundary_values):
     if not(position[1] <= (boundary_values[1] - 10)):
         position[1] = (boundary_values[1] - 10)
     """
+    
     return position
     
     
@@ -324,7 +325,7 @@ class Enemy:
                 index = self.act_path[5][index: ].find(self.act_path[4][i])
                 number_correct_choices += 1
             else:
-                text(enemy_dialogue[number_correct_choices + 1], 60, 320)
+                text(enemy_dialogue[number_correct_choices + 3], 60, 320)
                 break
         else:
             text("{} doesn't want to fight anymore".format(self.enemy_attributes[0]), 60, 320)
@@ -377,7 +378,7 @@ class Enemy:
         
 
 class User:
-    user_attributes = [4, 20]
+    user_attributes = [400, 20]
     items = ["Food", "Food", "Food", "Food"]
     item_values = [10, 4, 6, 2]  # Do I need to use dictionaries?
     

@@ -51,7 +51,7 @@ def draw():
         if movement:
             map_offset = user_movement(-1.5, map_offset, WORLD_BOUNDARIES) # Is using a negative speed ok?
         
-        if map_offset[1] >= 174:
+        if map_offset[1] >= enemy.enemy_attributes[4]:
             movement = False
             textbox([11, 324], [629, 468])
     elif slide == 2:
@@ -83,7 +83,7 @@ def draw():
             else:
                 enemy.enemy_attributes[1] -= user_attack_damage_calc()
             if enemy.enemy_attributes[1] <= 0:
-                slide = 6
+                slide = 7
             else:
                 offset = 0
                 slide += 1
@@ -101,9 +101,13 @@ def draw():
         draw_user(player_pos[0], player_pos[1], 13)
         user.user_attributes[0] -= enemy.damage_calc()
     elif slide == 6:
-        text("You win. Normally, the win screen would go here", 60, 320)
-    elif slide == 7:
         text("You lose. Normally, the lose screen would go here", 60, 320)
+    elif slide == 7:
+        text("You win. Normally, the win screen would go here", 60, 320)
+    elif slide == 8:
+        enemy.enemy_attributes[4] = 10000  # Change this later to coordinates of next enemy
+        movement = True
+        slide = 1
         
 
 def title_screen():
@@ -261,7 +265,7 @@ def keyReleased():
     if key == "z":
         if slide == 1 and movement == False:
             text_list_index += 1
-        elif slide in [0, 2, 3, 4]:
+        elif slide in [0, 2, 3, 4, 7]:
             time.sleep(0.15)
             slide += 1
             print(slide)
@@ -307,8 +311,22 @@ class Enemy:
     def patch(self):
         global enemy_dialogue
         enemy_dialogue = ["Hi", "Let's fight", "Hi, I'm Patch", "Patch is annoyed", "Patch smiles a bit", "Patch is happy", "Patch can barely stand"]
-        self.enemy_attributes = ["Patch", 50, 50, False]
-        self.act_path = ["Spray", "Heat", "Cut", "Sew", "0123", ""]
+        self.enemy_attributes = ["Patch", 1, 50, False, 174]
+        self.act_path = ["Spray", "Heat", "Cut", "Sew", "0", ""]
+        
+        
+    def test2(self):
+        global enemy_dialogue
+        enemy_dialogue = ["Hi", "Let's fight", "Hi, I'm test2", "test2 is annoyed", "test2 smiles a bit", "test2 is happy", "test2 can barely stand"]
+        self.enemy_attributes = ["test2", 30, 40, False, 200]
+        self.act_path = ["t", "e", "s", "t", "0", ""]
+        
+        
+    def test3(self):
+        global enemy_dialogue
+        enemy_dialogue = ["Hi", "Let's fight", "Hi, I'm test3", "test3 is annoyed", "test3 smiles a bit", "test3 is happy", "test3 can barely stand"]
+        self.enemy_attributes = ["test3", 30, 40, False, 200]
+        self.act_path = ["t", "e", "s", "t", "0", ""]
         
     
     def act(self, act_index):
@@ -374,11 +392,11 @@ class Enemy:
             slide = 2
         elif user.user_attributes[0] <= 0:
             time.sleep(0.2)
-            slide = 7
+            slide = 6
         
 
 class User:
-    user_attributes = [400, 20]
+    user_attributes = [1, 20]
     items = ["Food", "Food", "Food", "Food"]
     item_values = [10, 4, 6, 2]  # Do I need to use dictionaries?
     
@@ -395,6 +413,6 @@ class User:
     
     def spare(self, enemy_attributes):
         if enemy_attributes[3] == True:
-            return 6
+            return 7
         else:
             text("You tried to spare the enemy but it missed", 60, 320)

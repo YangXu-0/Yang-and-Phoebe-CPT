@@ -13,6 +13,7 @@ text_list_index = 0
 ENEMY_ATTACK_BOUNDARIES = [430, 379, 210, 236]
 WORLD_BOUNDARIES = [304, -563, -644, 224]
 map_offset = [0, 0]
+counter = 0
 
 
 def setup():
@@ -33,7 +34,7 @@ def setup():
 
 
 def draw():
-    global slide, user_option_selection_counter, option_selection, user, enemy, offset, player_pos, movement, map_offset
+    global slide, user_option_selection_counter, option_selection, user, enemy, offset, player_pos, movement, map_offset, counter, keys_pressed
     
     background(0)
         
@@ -101,12 +102,27 @@ def draw():
         draw_user(player_pos[0], player_pos[1], 13)
         user.user_attributes[0] -= enemy.damage_calc()
     elif slide == 6:
-        text("You lose. Normally, the lose screen would go here", 60, 320)
+        fill(255)
+        textSize(80)
+        text("You Lose.", width/2 - 175, height/2 + 40)
+        textSize(10)
+        text("how unfortunate :)", width/2+85, height/2+75)
     elif slide == 7:
-        text("You win. Normally, the win screen would go here", 60, 320)
+        fill(255)
+        textSize(80)
+        text("You Win!", width/2 - 175, height/2 + 40)
+        textSize(10)
+        text("...we'll get you next time", width/2+50, height/2+75)
     elif slide == 8:
-        enemy.enemy_attributes[4] = 10000  # Change this later to coordinates of next enemy
+        counter += 1
+        if counter == 1:
+            enemy.test2()
+        elif counter == 2:
+            enemy.test3()
+        
         movement = True
+        offset = 0
+        keys_pressed = [False for key_code in range(256)]
         slide = 1
         
 
@@ -163,6 +179,7 @@ def textbox(corner_one, corner_two):
     if text_list_index < 2:
         text(enemy_dialogue[text_list_index], 15, 396)
     else:
+        text_list_index = 0
         slide += 1
     
     
@@ -225,7 +242,7 @@ def user_movement(speed, position, boundary_values):
     if not(position[0] >= (boundary_values[2] + 10)):
         position[0] = (boundary_values[0] + 10)
     if not(position[0] <= (boundary_values[0] - 10)):
-        position[0] = (430 - 10)
+        position[0] = (boundary_values[0] - 10)
     if not(player_pos[1] >= (boundary_values[3] + 10)):
         position[1] = (boundary_values[3] + 10)
     if not(position[1] <= (boundary_values[1] - 10)):
@@ -325,7 +342,7 @@ class Enemy:
     def test3(self):
         global enemy_dialogue
         enemy_dialogue = ["Hi", "Let's fight", "Hi, I'm test3", "test3 is annoyed", "test3 smiles a bit", "test3 is happy", "test3 can barely stand"]
-        self.enemy_attributes = ["test3", 30, 40, False, 200]
+        self.enemy_attributes = ["test3", 30, 40, False, 220]
         self.act_path = ["t", "e", "s", "t", "0", ""]
         
     

@@ -116,9 +116,13 @@ def draw():
     elif slide == 8:
         counter += 1
         if counter == 1:
-            enemy.test2()
+            enemy.rosalind()
         elif counter == 2:
-            enemy.test3()
+            enemy.quack()
+        elif counter == 3:
+            enemy.desdemona()
+        elif counter == 4:
+            enemy.gallo()
         
         movement = True
         offset = 0
@@ -171,12 +175,12 @@ def battle_screen_display(user_info, enemy_info):
     
     
 def textbox(corner_one, corner_two):
-    global text_list_index, slide, enemy
+    global text_list_index, slide
         
     fill(0)
     rect(corner_one[0], corner_one[1], corner_two[0], corner_two[1])
     fill(255)
-    if text_list_index < 2:
+    if enemy_dialogue[text_list_index] != "":
         text(enemy_dialogue[text_list_index], 15, 396)
     else:
         text_list_index = 0
@@ -327,24 +331,38 @@ class Enemy:
 
     def patch(self):
         global enemy_dialogue
-        enemy_dialogue = ["Hi", "Let's fight", "Hi, I'm Patch", "Patch is annoyed", "Patch smiles a bit", "Patch is happy", "Patch can barely stand"]
+        enemy_dialogue = ["Patch blocks the way!", "", "You will be judged for your every action...", "Patch is annoyed", "Patch is taken aback, surprised.", "Patch smiles at you", "Patch laughs and his arrogant vibe dissolves into a friendly aura"]
         self.enemy_attributes = ["Patch", 1, 50, False, 174]
-        self.act_path = ["Spray", "Heat", "Cut", "Sew", "0", ""]
+        self.act_path = ["Taunt", "Compliment", "Critcize", "Encourage", "131", ""]
         
         
-    def test2(self):
+    def rosalind(self):
         global enemy_dialogue
-        enemy_dialogue = ["Hi", "Let's fight", "Hi, I'm test2", "test2 is annoyed", "test2 smiles a bit", "test2 is happy", "test2 can barely stand"]
-        self.enemy_attributes = ["test2", 30, 40, False, 200]
-        self.act_path = ["t", "e", "s", "t", "0", ""]
+        enemy_dialogue = ["Rosalind stumbles in the way.", "", "Rosalind apologizes.", "Rosalind cries pitifully", "Rosalind cries out, beggin for your sympathy", "Rosalind sniffs and wipes away her tears.", "Rosaline finally cracks a smile, accepting your hug happily"]
+        self.enemy_attributes = ["Rosalind", 30, 40, False, 200]  # Still need to change stats and location
+        self.act_path = ["Threaten", "Play", "Ignore", "Hug", "213", ""]
         
         
-    def test3(self):
+    def quack(self):
         global enemy_dialogue
-        enemy_dialogue = ["Hi", "Let's fight", "Hi, I'm test3", "test3 is annoyed", "test3 smiles a bit", "test3 is happy", "test3 can barely stand"]
-        self.enemy_attributes = ["test3", 30, 40, False, 220]
-        self.act_path = ["t", "e", "s", "t", "0", ""]
+        enemy_dialogue = ["Quack blocks the way!", "", "Quack brings a friend", "Woodward growls at you", "Quack watches you pet his little friend", "Both Quack and Woordward find you very amusing", "Quack and Woodward no longer want to fight"]
+        self.enemy_attributes = ["Quack", 30, 40, False, 220]
+        self.act_path = ["Taunt", "Ignore", "Joke", "Pet", "1323", ""]
+
         
+    def desdemona(self):
+        global enemy_dialogue
+        enemy_dialogue = ["Desdemona blocks the way!", "", "Desmonda files her nails", "You are ignored", "She glares at you, the insult hits a sore spot", "Desdemona's confidence goes down", "Desdemona is getting scared", "Desdemona cowers in fright"]
+        self.enemy_attributes = ["Desdemona", 30, 40, False, 240]
+        self.act_path = ["Threaten", "Cheer", "Insult", "Scare", "2023", ""]
+ 
+ 
+    def gallo(self):
+        global enemy_dialogue
+        enemy_dialogue = ["Gallo blocks the way!", "", "Gallo takes your phone", "Gallo sheds all his hair in a spiky ball attack."]
+        self.enemy_attributes = ["Gallo", 300, 300, False, 260]
+        self.act_path = ["Plead", "Reason", "Talk", "Compliment", "0", ""]
+                                                               
     
     def act(self, act_index):
         index = 0
@@ -356,14 +374,14 @@ class Enemy:
             self.act_path[5] += str(act_index)
             
         for i in range(0, len(self.act_path[4])):
-            if self.act_path[5][index: ].count(self.act_path[4][i]) > 0:
+            if self.act_path[5][index + 1: ].count(self.act_path[4][i]) > 0:
                 index = self.act_path[5][index: ].find(self.act_path[4][i])
                 number_correct_choices += 1
             else:
                 text(enemy_dialogue[number_correct_choices + 3], 60, 320)
                 break
         else:
-            text("{} doesn't want to fight anymore".format(self.enemy_attributes[0]), 60, 320)
+            text("{} {}".format(enemy_dialogue[len(enemy_dialogue) - 1]), 60, 320)
             self.enemy_attributes[3] = True
     
     

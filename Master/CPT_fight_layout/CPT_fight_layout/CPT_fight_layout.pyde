@@ -11,51 +11,58 @@ enemy_dialogue = []
 movement = True
 text_list_index = 0
 ENEMY_ATTACK_BOUNDARIES = [430, 379, 210, 236]
-WORLD_BOUNDARIES = [304, -563, -644, 224]
+WORLD_BOUNDARIES = [0, 150, -891, -72]
 map_offset = [0, 0]
 counter = 0
+attack_functions = 0
+enemy_attack = None
+user_color = "#FF0000"
 
 
 def setup():
     global user, enemy, landscape, PLAYER_POS_WORLD
     size(640, 480)
     rectMode(CORNERS)
+    frameRate(100)
 
     text_font = loadFont("CharterBT-Bold-48.vlw")
     textFont(text_font)
     
-    landscape = loadImage("HOSA skeleton diagram.PNG")
+    landscape = loadImage("map.png")
     PLAYER_POS_WORLD = [width/2, height/2]
     
     enemy = Enemy()
     user = User()
 
-    enemy.patch()
+    enemy.patch() # Defined at beginning just to get program running
 
 
 def draw():
-    global slide, user_option_selection_counter, option_selection, user, enemy, offset, player_pos, movement, map_offset, counter, keys_pressed
+    global slide, user_option_selection_counter, option_selection, user, enemy, offset, player_pos, movement, map_offset, counter, keys_pressed, enemy_attack
     
     background(0)
         
+    print(map_offset) 
+    
     if slide == 2 or slide == 3 or slide == 4 or slide == 5:
         battle_screen_display(user, enemy)
       
     if slide == 0:
         title_screen()
     elif slide == 1:
-        landscape.resize(900, 900)
+        landscape.resize(0, 800)
         image(landscape, map_offset[0], map_offset[1])
-        rect(310 + map_offset[0], 59 + map_offset[1], 330 + map_offset[0], 72 + map_offset[1])
-        draw_user(PLAYER_POS_WORLD[0], PLAYER_POS_WORLD[1], 13)
+        draw_user(PLAYER_POS_WORLD[0], PLAYER_POS_WORLD[1], 13, "#FFFF00")
         
         if movement:
             map_offset = user_movement(-1.5, map_offset, WORLD_BOUNDARIES) # Is using a negative speed ok?
         
-        if map_offset[1] >= enemy.enemy_attributes[4]:
+        if map_offset[0] <= enemy.enemy_attributes[4]:
             movement = False
             textbox([11, 324], [629, 468])
     elif slide == 2:
+        enemy_attack = random.choice(attack_functions)  # Needs to be defined at the beginning of turn
+        
         user_selection()
         fill(255)
         textSize(20)
@@ -97,9 +104,10 @@ def draw():
         else:
             slide += 1
     elif slide == 5:
-        enemy.patch_attack1()
+        enemy_attack()
         player_pos = user_movement(1.5, player_pos, ENEMY_ATTACK_BOUNDARIES)
-        draw_user(player_pos[0], player_pos[1], 13)
+        enemy.end_attack() # Needs to be before damage calculation
+        draw_user(player_pos[0], player_pos[1], 13, user_color)
         user.user_attributes[0] -= enemy.damage_calc()
     elif slide == 6:
         fill(255)
@@ -127,6 +135,9 @@ def draw():
         movement = True
         offset = 0
         keys_pressed = [False for key_code in range(256)]
+        user.items = ["Burger", "Ice Cream", "Over Priced Cookie", "Cake"]
+        user.item_values = [12, 6, 2, 8]
+        user.user_attributes[0] = 20
         slide = 1
         
 
@@ -197,7 +208,7 @@ def user_selection():
         selection_pos = [56 + (151 * option_selection), 320]
 
     # Player
-    draw_user(selection_pos[0], selection_pos[1], 13)
+    draw_user(selection_pos[0], selection_pos[1], 13, user_color)
 
 
 def fight():
@@ -242,26 +253,24 @@ def user_movement(speed, position, boundary_values):
     if keys_pressed[39]:
         position[0] += speed
     
-    """ 
     if not(position[0] >= (boundary_values[2] + 10)):
-        position[0] = (boundary_values[0] + 10)
+        position[0] = (boundary_values[2] + 10)
     if not(position[0] <= (boundary_values[0] - 10)):
         position[0] = (boundary_values[0] - 10)
-    if not(player_pos[1] >= (boundary_values[3] + 10)):
+    if not(position[1] >= (boundary_values[3] + 10)):
         position[1] = (boundary_values[3] + 10)
     if not(position[1] <= (boundary_values[1] - 10)):
         position[1] = (boundary_values[1] - 10)
-    """
     
     return position
     
     
-def draw_user(x_pos, y_pos, length):
+def draw_user(x_pos, y_pos, length, color):
     if slide == 1:
-        fill(255, 255, 0)
+        fill(color)
         ellipse(x_pos, y_pos, length, length)
     else:
-        fill(255, 0, 0)
+        fill(color)
         noStroke()
         ellipse(x_pos, y_pos, length, length)
     
@@ -327,41 +336,46 @@ class Enemy:
     obstacle_pos = []
     collision_immune = False
     immune_time_elapsed = 0
-    IMMUNE_TIME = 3
+    IMMUNE_TIME = 70 # Frames
 
     def patch(self):
-        global enemy_dialogue
-        enemy_dialogue = ["Patch blocks the way!", "", "You will be judged for your every action...", "Patch is annoyed", "Patch is taken aback, surprised.", "Patch smiles at you", "Patch laughs and his arrogant vibe dissolves into a friendly aura"]
-        self.enemy_attributes = ["Patch", 1, 50, False, 174]
+        global enemy_dialogue, attack_functions
+        enemy_dialogue = ["Patch blocks the way!", "", "You will be judged for your every action...", "Patch is annoyed", "Patch is taken aback, surprised.", "Patch smiles at you", "Patch laughs and his arrogant vibe dissolves into a friendly aura."]
+        self.enemy_attributes = ["Patch", 1, 50, False, -88]
         self.act_path = ["Taunt", "Compliment", "Critcize", "Encourage", "131", ""]
+        attack_functions = [enemy.patch_attack1, enemy.patch_attack2, enemy.patch_attack3]
         
         
     def rosalind(self):
         global enemy_dialogue
-        enemy_dialogue = ["Rosalind stumbles in the way.", "", "Rosalind apologizes.", "Rosalind cries pitifully", "Rosalind cries out, beggin for your sympathy", "Rosalind sniffs and wipes away her tears.", "Rosaline finally cracks a smile, accepting your hug happily"]
-        self.enemy_attributes = ["Rosalind", 30, 40, False, 200]  # Still need to change stats and location
-        self.act_path = ["Threaten", "Play", "Ignore", "Hug", "213", ""]
+        enemy_dialogue = ["Rosalind stumbles in the way.", "", "Rosalind apologizes.", "Rosalind cries pitifully", "Rosalind cries out, beggin for your sympathy", "Rosalind sniffs and wipes away her tears.", "Rosaline finally cracks a smile, she no longer wants to fight."]
+        self.enemy_attributes = ["Rosalind", 30, 40, False, -360]  # Still need to change stats and location
+        self.act_path = ["Threaten", "Play", "Smile", "Hug", "231", ""]
+        attack_functions = [enemy.patch_attack1, enemy.patch_attack2, enemy.patch_attack3]
         
         
     def quack(self):
         global enemy_dialogue
-        enemy_dialogue = ["Quack blocks the way!", "", "Quack brings a friend", "Woodward growls at you", "Quack watches you pet his little friend", "Both Quack and Woordward find you very amusing", "Quack and Woodward no longer want to fight"]
-        self.enemy_attributes = ["Quack", 30, 40, False, 220]
+        enemy_dialogue = ["Quack blocks the way!", "", "Quack brings a friend", "Woodward growls at you", "Quack watches you pet his little friend", "Both Quack and Woordward find you very amusing", "Quack and Woodward no longer want to fight."]
+        self.enemy_attributes = ["Quack", 30, 40, False, -582]
         self.act_path = ["Taunt", "Ignore", "Joke", "Pet", "1323", ""]
+        attack_functions = [enemy.patch_attack1, enemy.patch_attack2, enemy.patch_attack3]
 
         
     def desdemona(self):
         global enemy_dialogue
-        enemy_dialogue = ["Desdemona blocks the way!", "", "Desmonda files her nails", "You are ignored", "She glares at you, the insult hits a sore spot", "Desdemona's confidence goes down", "Desdemona is getting scared", "Desdemona cowers in fright"]
-        self.enemy_attributes = ["Desdemona", 30, 40, False, 240]
+        enemy_dialogue = ["Desdemona blocks the way!", "", "Desmonda files her nails", "You are ignored", "She glares at you, the insult hits a sore spot", "Desdemona's confidence goes down", "Desdemona is getting scared", "Desdemona cowers in fright."]
+        self.enemy_attributes = ["Desdemona", 30, 40, False, -759]
         self.act_path = ["Threaten", "Cheer", "Insult", "Scare", "2023", ""]
+        attack_functions = [enemy.patch_attack1, enemy.patch_attack2, enemy.patch_attack3]
  
  
     def gallo(self):
         global enemy_dialogue
-        enemy_dialogue = ["Gallo blocks the way!", "", "Gallo takes your phone", "Gallo sheds all his hair in a spiky ball attack."]
-        self.enemy_attributes = ["Gallo", 300, 300, False, 260]
+        enemy_dialogue = ["Gallo blocks the way!", "", "Gallo takes your phone", "Gallo transcends this realm of mortals. Your actions are meaningless."]
+        self.enemy_attributes = ["Gallo", 300, 300, False, -881]
         self.act_path = ["Plead", "Reason", "Talk", "Compliment", "0", ""]
+        attack_functions = [enemy.patch_attack1, enemy.patch_attack2, enemy.patch_attack3]
                                                                
     
     def act(self, act_index):
@@ -381,22 +395,25 @@ class Enemy:
                 text(enemy_dialogue[number_correct_choices + 3], 60, 320)
                 break
         else:
-            text("{} {}".format(enemy_dialogue[len(enemy_dialogue) - 1]), 60, 320)
+            print(len(enemy_dialogue))
+            text("{}".format(enemy_dialogue[len(enemy_dialogue) - 1]), 60, 320)
             self.enemy_attributes[3] = True
     
     
     def damage_calc(self):
-        global player_pos, keys_pressed
+        global player_pos, keys_pressed, user_color
         
         if self.collision_immune == True:
-            if second() - self.immune_time_elapsed >= self.IMMUNE_TIME:
+            if frameCount - self.immune_time_elapsed >= self.IMMUNE_TIME:
+                user_color = "#FF0000"
                 self.collision_immune = False
                 self.immune_time_elapsed = 0
         
         for i in range(0, len(self.obstacle_pos), 4):
             if player_pos[0] >= self.obstacle_pos[i] and player_pos[0] <= self.obstacle_pos[i + 2] and player_pos[1] >= self.obstacle_pos[i + 1] and player_pos[1] <= self.obstacle_pos[i + 3] and self.collision_immune == False:
+                user_color = "#A52323"
                 self.collision_immune = True
-                self.immune_time_elapsed = second()
+                self.immune_time_elapsed = frameCount
                 return 4
         else:
             return 0
@@ -406,23 +423,49 @@ class Enemy:
         global offset, enemy
         
         if offset < 220:
-            offset += 2
+            offset += 0.5
             
         self.obstacle_pos = [width/2  - 107, height/2 + 67.5, width/2 - 110 + offset, height/2 + 137]
         
         fill(0, 0, 255)
+        noStroke()
         rect(self.obstacle_pos[0], self.obstacle_pos[1], self.obstacle_pos[2], self.obstacle_pos[3])
         
-        enemy.end_attack()
+        
+    def patch_attack2(self):
+        global offset, enemy
+        
+        if offset < 220:
+            offset += 2
+            
+        self.obstacle_pos = [width/2  - 107, height/2 + 67.5, width/2 - 110 + offset, height/2 + 137]
+        
+        fill(255, 0, 0)
+        noStroke()
+        rect(self.obstacle_pos[0], self.obstacle_pos[1], self.obstacle_pos[2], self.obstacle_pos[3])
+        
+        
+    def patch_attack3(self):
+        global offset, enemy
+        
+        if offset < 220:
+            offset += 2
+            
+        self.obstacle_pos = [width/2  - 107, height/2 + 67.5, width/2 - 110 + offset, height/2 + 137]
+        
+        fill(0, 255, 0)
+        noStroke()
+        rect(self.obstacle_pos[0], self.obstacle_pos[1], self.obstacle_pos[2], self.obstacle_pos[3])
         
             
     def end_attack(self):
-        global offset, user, keys_pressed, player_pos, slide
+        global offset, user, keys_pressed, player_pos, slide, user_color
         if offset >= 220:
             self.obstacle_pos = []  # Consider moving player pos reset to damage function
             offset = 0
             keys_pressed = [False for key_code in range(256)]
             player_pos = [320, 308]
+            user_color = "#FF0000"
             time.sleep(0.25)
             slide = 2
         elif user.user_attributes[0] <= 0:
@@ -431,9 +474,9 @@ class Enemy:
         
 
 class User:
-    user_attributes = [1, 20]
-    items = ["Food", "Food", "Food", "Food"]
-    item_values = [10, 4, 6, 2]  # Do I need to use dictionaries?
+    user_attributes = [400, 20]
+    items = ["Burger", "Ice Cream", "Noodles", "Cake"]
+    item_values = [12, 6, 2, 8]  # Do I need to use dictionaries?
     
     def use_item(self, item_index):
         value = self.item_values[item_index]

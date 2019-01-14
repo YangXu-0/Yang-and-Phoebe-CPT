@@ -38,7 +38,8 @@ def setup():
 
 
 def draw():
-    global slide, user_option_selection_counter, option_selection, user, enemy, offset, player_pos, movement, map_offset, counter, keys_pressed, enemy_attack
+    global slide, user_option_selection_counter, option_selection, user, enemy 
+    global offset, player_pos, movement, map_offset, counter, keys_pressed, enemy_attack
     
     background(0)
         
@@ -267,6 +268,15 @@ def user_movement(speed, position, boundary_values):
     
 def draw_user(x_pos, y_pos, length, color):
     if slide == 1:
+        if keyCode == RIGHT:
+            color = "#333FB4"
+        elif keyCode == LEFT:
+            color = "#07F509"
+        elif keyCode == UP:
+            color = "#F5072B"
+        else:
+            color = "#F5E907"
+        
         fill(color)
         ellipse(x_pos, y_pos, length, length)
     else:

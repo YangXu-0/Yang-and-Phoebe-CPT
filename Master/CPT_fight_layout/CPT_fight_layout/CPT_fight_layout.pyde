@@ -53,7 +53,7 @@ def draw():
     elif slide == 1:
         landscape.resize(0, 800)
         image(landscape, map_offset[0], map_offset[1])
-        draw_user(PLAYER_POS_WORLD[0], PLAYER_POS_WORLD[1], 13, "#FFFF00")
+        draw_world_user(PLAYER_POS_WORLD[0], PLAYER_POS_WORLD[1], 13)
         
         if movement:
             map_offset = user_movement(-1.5, map_offset, WORLD_BOUNDARIES) # Is using a negative speed ok?
@@ -64,7 +64,8 @@ def draw():
     elif slide == 2:
         enemy_attack = random.choice(attack_functions)  # Needs to be defined at the beginning of turn
         
-        user_selection()
+        user_choice_pos = user_selection(user_option_selection_counter)
+        draw_user(user_choice_pos[0], user_choice_pos[1], 13, user_color)
         fill(255)
         textSize(20)
         text(enemy_dialogue[2], 60, 320)    
@@ -75,10 +76,12 @@ def draw():
             fight()
         elif user_option_selection_counter == 1:
             print_options(0, 4, enemy.act_path)
-            user_selection()        
+            user_choice_pos = user_selection(option_selection)
+            draw_user(user_choice_pos[0], user_choice_pos[1], 13, user_color)        
         elif user_option_selection_counter == 2:
             print_options(0, 4, user.items)
-            user_selection()
+            user_choice_pos = user_selection(option_selection)
+            draw_user(user_choice_pos[0], user_choice_pos[1], 13, user_color)
         else:
             # Is using a try except this way good practice?
             try:
@@ -198,18 +201,17 @@ def textbox(corner_one, corner_two):
         text_list_index = 0
         slide += 1
     
-    
-def user_selection():
-    global user_option_selection_counter, option_selection
+   
+# Need refactor more?
+def user_selection(counter):
     selection_pos = []
         
     if slide == 2:
-        selection_pos = [37 + (157 * user_option_selection_counter), 442]
-    elif slide == 3:
-        selection_pos = [56 + (151 * option_selection), 320]
+        selection_pos = [37 + (157 * counter), 442]
+    else:
+        selection_pos = [56 + (151 * counter), 320]
 
-    # Player
-    draw_user(selection_pos[0], selection_pos[1], 13, user_color)
+    return selection_pos
 
 
 def fight():
@@ -267,23 +269,24 @@ def user_movement(speed, position, boundary_values):
     
     
 def draw_user(x_pos, y_pos, length, color):
-    if slide == 1:
-        if keyCode == RIGHT:
-            color = "#333FB4"
-        elif keyCode == LEFT:
-            color = "#07F509"
-        elif keyCode == UP:
-            color = "#F5072B"
-        else:
-            color = "#F5E907"
+    fill(color)
+    noStroke()
+    ellipse(x_pos, y_pos, length, length)
         
-        fill(color)
-        ellipse(x_pos, y_pos, length, length)
+
+def draw_world_user(x_pos, y_pos, length):
+    if keyCode == RIGHT:
+        color = "#333FB4"
+    elif keyCode == LEFT:
+        color = "#07F509"
+    elif keyCode == UP:
+        color = "#F5072B"
     else:
-        fill(color)
-        noStroke()
-        ellipse(x_pos, y_pos, length, length)
-    
+        color = "#F5E907"
+        
+    fill(color)
+    ellipse(x_pos, y_pos, length, length)
+
 
 def print_options(min_range, max_range, options_list):
     slice_list = options_list[min_range: max_range]

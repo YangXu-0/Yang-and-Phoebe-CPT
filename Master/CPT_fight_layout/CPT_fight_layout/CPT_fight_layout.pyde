@@ -328,8 +328,6 @@ def mousePressed():
     print(str(mouseX) + ", " + str(mouseY))
     
     
-# Should put in seperate tab?
-# Why does it force me to make an argument?
 class Enemy:
     enemy_attributes = []
     act_path = []

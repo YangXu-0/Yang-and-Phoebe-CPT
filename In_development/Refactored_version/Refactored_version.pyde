@@ -86,7 +86,7 @@ def draw():
         else:
             # Is using a try except this way good practice?
             try:
-                slide = int(spare(enemy.enemy_attributes))
+                slide = int(spare(enemy.enemy_attributes, 7))
             except:
                 spare(enemy.enemy_attributes)
     elif slide == 4:
@@ -316,10 +316,10 @@ def print_options(min_range, max_range, options_list):
         text(slice_list[option], 60 + (option * 151), 320)
 
 
-def spare(enemy_attributes):
+def spare(enemy_attributes, return_value):
     if enemy_attributes[3]:
         time.sleep(1)
-        return 7
+        return return_value
     else:
         text("You tried to spare the enemy but it missed", 60, 320)
 
@@ -341,8 +341,7 @@ def keyReleased():
             time.sleep(0.15)
             slide += 1
             print(slide)
-
-    if key == "x" and slide in [3] and user_option_selection_counter not in [0, 3]:
+    elif key == "x" and slide in [3] and user_option_selection_counter not in [0, 3]:
         slide -= 1
         print(slide)
 
@@ -352,7 +351,7 @@ def keyReleased():
             user_option_selection_counter += 1
         elif keyCode == LEFT and user_option_selection_counter > 0:
             user_option_selection_counter -= 1
-    if slide == 3:
+    elif slide == 3:
         # Changes option selection counter
         if keyCode == RIGHT:
             if user_option_selection_counter == 2 and option_selection < len(user_items.items) - 1:

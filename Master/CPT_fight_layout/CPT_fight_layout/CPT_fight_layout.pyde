@@ -510,7 +510,7 @@ class Enemy:
 class User:
     user_attributes = [400, 20]
     items = ["Burger", "Ice Cream", "Noodles", "Cake"]
-    item_values = [12, 6, 2, 8]  # Do I need to use dictionaries?
+    item_values = [12, 6, 2, 8]
     
     def use_item(self, item_index):
         value = self.item_values[item_index]

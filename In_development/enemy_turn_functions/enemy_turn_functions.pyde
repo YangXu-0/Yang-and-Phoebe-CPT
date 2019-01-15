@@ -11,6 +11,7 @@ immune_time_elapsed = 0
 health = 20
 slide = 0
 seconds_elapsed = 0
+ratio = random.random() 
 
 keys_pressed = [False for key_code in range(256)]
 
@@ -23,32 +24,95 @@ def draw():
     global health, player_pos, obstacle_pos, slide
     
     background(0)
+    battle_screen_display()
     if slide == 0:
-        battle_screen_display()
         user_movement()
-        patch_attack1() # Change this each time
+        patch_attack() # Change this each time
         health -= damage_calc(obstacle_pos, player_pos)
         if len(obstacle_pos) == 0:
             slide += 1
     
-    battle_screen_display()
     user_movement()
-  
-    
-def patch_attack1():
-        global slide, offset, obstacle_pos
+
+def patch_attack():
+        global offset, obstacle_pos, ratio
+        
+        if offset < 220:
+            offset += 1
+
+        fill(255)
+        stroke(255)
+        strokeWeight(5)
+        obstacle_pos = [width/2  - 110 + offset, (height/2) + 8.3 * ratio, width/2 - 50 + offset, (height/2 + 50) + 8.3 * ratio]
+        rect(obstacle_pos[0], obstacle_pos[1], obstacle_pos[2], obstacle_pos[3])
+        
+        if offset >= 153:
+            offset = 0
+            ratio = random.randint(0, 10) 
+
+def quack_attack():
+        global offset, obstacle_pos, ratio
+        
+        if offset < 220:
+            offset += 3
+
+        fill(255)
+        stroke(255)
+        strokeWeight(5)
+        obstacle_pos = [width/2  - 110 + offset, (height/2) + 10.85 * ratio, width/2 - 80 + offset, (height/2 + 30) + 10.85 * ratio]
+        rect(obstacle_pos[0], obstacle_pos[1], obstacle_pos[2], obstacle_pos[3])
+        
+        if offset >= 187:
+            offset = 0
+            ratio = random.randint(0, 10) 
+
+def desdemona_attack():
+        global offset, obstacle_pos, ratio
+        
+        if offset < 220:
+            offset += 2.5
+
+        fill(255)
+        stroke(255)
+        strokeWeight(5)
+        obstacle_pos = [width/2  - 110 + offset, (height/2) + 8.3 * ratio, width/2 - 50 + offset, (height/2 + 50) + 8.3 * ratio]
+        rect(obstacle_pos[0], obstacle_pos[1], obstacle_pos[2], obstacle_pos[3])
+        
+        if offset >= 157:
+            offset = 0
+            ratio = random.randint(0, 10) 
+        
+def rosalind_attack():
+        global offset, obstacle_pos, ratio
         
         if offset < 220:
             offset += 2
-            
-        obstacle_pos = [width/2  - 110, height/2 + 67.5, width/2 - 110 + offset, height/2 + 139]
-        
+
+        fill(255)
+        stroke(255)
+        strokeWeight(5)
+        obstacle_pos = [width/2  - 110 + 15.4 * ratio, (height/2) + offset, width/2 - 50 + 15.4 * ratio , (height/2 + 50) + offset]
         rect(obstacle_pos[0], obstacle_pos[1], obstacle_pos[2], obstacle_pos[3])
         
-        if offset >= 220:
-            time.sleep(1)
-            slide += 1
+        if offset >= 90:
+            offset = 0
+            ratio = random.randint(0, 10) 
+            
+def gallo_attack():
+        global offset, obstacle_pos, ratio
         
+        if offset < 220:
+            offset += 2.5
+
+        fill(255)
+        stroke(255)
+        strokeWeight(5)
+        obstacle_pos = [width/2  - 110 + 19 * ratio, (height/2) + offset, width/2 - 80 + 19 * ratio , (height/2 + 80) + offset]
+        rect(obstacle_pos[0], obstacle_pos[1], obstacle_pos[2], obstacle_pos[3])
+        
+        if offset >= 56:
+            offset = 0
+            ratio = random.randint(0, 10) 
 
 def battle_screen_display():    
     # Fight box
@@ -56,7 +120,6 @@ def battle_screen_display():
     stroke(255)
     strokeWeight(5)
     rect(width/2 - 110, height/2 - 4, width/2 + 110, height/2 + 139)
-    
     # Selection boxes
     stroke("#FF8503")
     rect(12, 417, 157, 467)
@@ -118,7 +181,3 @@ def damage_calc(obstacle_locations, player_location):
     else:
         return 0
     
-    
-
-
-        

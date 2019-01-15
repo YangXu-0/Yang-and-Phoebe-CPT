@@ -13,7 +13,7 @@ text_list_index = 0
 ENEMY_ATTACK_BOUNDARIES = [430, 379, 210, 236]
 WORLD_BOUNDARIES = [0, 150, -891, -72]
 map_offset = [0, 0]
-counter = 4
+counter = 0
 attack_functions = 0
 enemy_attack = None
 user_color = "#FF0000"
@@ -121,6 +121,7 @@ def draw():
             if done:
                 exit()
         else:
+            movement = True
             win_screen()
     elif slide == 8:
         counter += 1
@@ -133,7 +134,6 @@ def draw():
         elif counter == 4:
             enemy.gallo()
 
-        movement = True
         offset = 0
         keys_pressed = [False for key_code in range(256)]
         user.items = ["Burger", "Ice Cream", "Over Priced Cookie", "Cake"]

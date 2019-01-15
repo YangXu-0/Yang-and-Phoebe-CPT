@@ -13,10 +13,11 @@ text_list_index = 0
 ENEMY_ATTACK_BOUNDARIES = [430, 379, 210, 236]
 WORLD_BOUNDARIES = [0, 150, -891, -72]
 map_offset = [0, 0]
-counter = 0
+counter = 4
 attack_functions = 0
 enemy_attack = None
 user_color = "#FF0000"
+
 
 
 def setup():
@@ -60,7 +61,9 @@ def draw():
         
         if map_offset[0] <= enemy.enemy_attributes[4]:
             movement = False
-            textbox([11, 324], [629, 468])
+            done = textbox([11, 324], [629, 468], enemy_dialogue)
+            if done:
+                slide += 1
     elif slide == 2:
         enemy_attack = random.choice(attack_functions)  # Needs to be defined at the beginning of turn
         
@@ -95,6 +98,7 @@ def draw():
             else:
                 enemy.enemy_attributes[1] -= user_attack_damage_calc()
             if enemy.enemy_attributes[1] <= 0:
+                time.sleep(1)
                 slide = 7
             else:
                 offset = 0
@@ -114,17 +118,14 @@ def draw():
         draw_user(player_pos[0], player_pos[1], 13, user_color)
         user.user_attributes[0] -= enemy.damage_calc()
     elif slide == 6:
-        fill(255)
-        textSize(80)
-        text("You Lose.", width/2 - 175, height/2 + 40)
-        textSize(10)
-        text("how unfortunate :)", width/2+85, height/2+75)
+        lose_screen()
     elif slide == 7:
-        fill(255)
-        textSize(80)
-        text("You Win!", width/2 - 175, height/2 + 40)
-        textSize(10)
-        text("...we'll get you next time", width/2+50, height/2+75)
+        if counter == 4:
+            done = final_win_screen()
+            if done:
+                exit()
+        else:
+            win_screen()
     elif slide == 8:
         counter += 1
         if counter == 1:
@@ -189,17 +190,39 @@ def battle_screen_display(user_info, enemy_info):
     text("Enemy Health {}/{}".format(enemy_info.enemy_attributes[1], enemy_info.enemy_attributes[2]), width/2 - 120, height/2 + 165)
     
     
-def textbox(corner_one, corner_two):
+def win_screen():
+    fill(255)
+    textSize(80)
+    text("You Win!", width/2 - 175, height/2 + 40)
+    textSize(10)
+    text("...we'll get you next time", width/2+50, height/2+75)
+    
+    
+def final_win_screen():
+    dialogue = ["You won.", "You've finally escaped.", "The Gallo has been defeated.", ""]
+    return textbox([11, 324], [629, 468], dialogue)
+    
+    
+def lose_screen():
+    fill(255)
+    textSize(80)
+    text("You Lose.", width/2 - 175, height/2 + 40)
+    textSize(10)
+    text("how unfortunate :)", width/2+85, height/2+75)
+    
+    
+def textbox(corner_one, corner_two, text_list):
     global text_list_index, slide
         
     fill(0)
     rect(corner_one[0], corner_one[1], corner_two[0], corner_two[1])
     fill(255)
-    if enemy_dialogue[text_list_index] != "":
-        text(enemy_dialogue[text_list_index], 15, 396)
+    if text_list[text_list_index] != "":
+        text(text_list[text_list_index], 15, 396)
     else:
         text_list_index = 0
-        slide += 1
+        finished = True
+        return finished  # Is this allowed?
     
    
 # Need refactor more?
@@ -306,7 +329,7 @@ def keyReleased():
     global user_option_selection_counter, slide, option_selection, keys_pressed, text_list_index
     
     if key == "z":
-        if slide == 1 and movement == False:
+        if slide in [1, 7] and movement == False:
             text_list_index += 1
         elif slide in [0, 2, 3, 4, 7]:
             time.sleep(0.15)
@@ -502,6 +525,7 @@ class User:
     
     def spare(self, enemy_attributes):
         if enemy_attributes[3] == True:
+            time.sleep(1)
             return 7
         else:
             text("You tried to spare the enemy but it missed", 60, 320)

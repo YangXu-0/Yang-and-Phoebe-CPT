@@ -18,20 +18,22 @@ attack_functions = 0
 enemy_attack = None
 user_color = "#FF0000"
 
+user_health = [400, 20]
+items = ["Burger", "Ice Cream", "Noodles", "Cake"]
+item_values = [12, 6, 2, 8]
+
 
 def setup():
-    global user, enemy, landscape, PLAYER_POS_WORLD
+    global user, enemy, landscape, PLAYER_POS_WORLD, user_items
     size(640, 480)
     rectMode(CORNERS)
     frameRate(100)
 
-    text_font = loadFont("CharterBT-Bold-48.vlw")
-    textFont(text_font)
     landscape = loadImage("map.png")
     PLAYER_POS_WORLD = [width/2, height/2]
 
     enemy = Enemy()
-    user = User()
+    user_items = Item(user_health, items, item_values)
 
     enemy.patch()  # Defined at beginning just to get program running
 
@@ -39,11 +41,11 @@ def setup():
 def draw():
     global slide, user_option_selection_counter, option_selection, user, enemy
     global offset, player_pos, movement, map_offset
-    global counter, keys_pressed, enemy_attack
+    global counter, keys_pressed, enemy_attack, user_health
     background(0)
 
     if slide == 2 or slide == 3 or slide == 4 or slide == 5:
-        battle_screen_display(user, enemy)
+        battle_screen_display(user_health, enemy.enemy_attributes[1:3])
 
     if slide == 0:
         title_screen()
@@ -78,15 +80,15 @@ def draw():
             user_choice_pos = user_selection(option_selection)
             draw_user(user_choice_pos[0], user_choice_pos[1], 13, user_color)
         elif user_option_selection_counter == 2:
-            print_options(0, 4, user.items)
+            print_options(0, 4, user_items.items)
             user_choice_pos = user_selection(option_selection)
             draw_user(user_choice_pos[0], user_choice_pos[1], 13, user_color)
         else:
             # Is using a try except this way good practice?
             try:
-                slide = int(user.spare(enemy.enemy_attributes))
+                slide = int(spare(enemy.enemy_attributes, 7))
             except:
-                user.spare(enemy.enemy_attributes)
+                spare(enemy.enemy_attributes)
     elif slide == 4:
         if user_option_selection_counter == 0:
             if enemy.enemy_attributes[1] - user_attack_damage_calc() < 0:
@@ -103,7 +105,7 @@ def draw():
             enemy.act(option_selection)
 
         elif user_option_selection_counter == 2:
-            user.use_item(option_selection)
+            user_items.use_item(option_selection)
             slide += 1
         else:
             slide += 1
@@ -112,7 +114,7 @@ def draw():
         player_pos = user_movement(1.5, player_pos, ENEMY_ATTACK_BOUNDARIES)
         enemy.end_attack()  # Needs to be before damage calculation
         draw_user(player_pos[0], player_pos[1], 13, user_color)
-        user.user_attributes[0] -= enemy.damage_calc()
+        user_health[0] -= enemy.damage_calc()
     elif slide == 6:
         lose_screen()
     elif slide == 7:
@@ -136,9 +138,9 @@ def draw():
 
         offset = 0
         keys_pressed = [False for key_code in range(256)]
-        user.items = ["Burger", "Ice Cream", "Over Priced Cookie", "Cake"]
-        user.item_values = [12, 6, 2, 8]
-        user.user_attributes[0] = 20
+        user_items.items = items
+        user_items.item_values = item_values
+        user_health[0] = user_health[1]
         slide = 1
 
 
@@ -150,7 +152,7 @@ def title_screen():
     text("Press 'z' to start", width/2 - 70, height/2 + 70)
 
 
-def battle_screen_display(user_info, enemy_info):
+def battle_screen_display(user_health, enemy_health):
     if slide == 5:
         # Fight box
         fill(0)
@@ -182,8 +184,8 @@ def battle_screen_display(user_info, enemy_info):
     # Health fractions
     fill(255)
     textSize(16)
-    text("Player Health {}/{}".format(user_info.user_attributes[0], user_info.user_attributes[1]), width/2 - 308, height/2 + 165)
-    text("Enemy Health {}/{}".format(enemy_info.enemy_attributes[1], enemy_info.enemy_attributes[2]), width/2 - 120, height/2 + 165)
+    text("Player Health {}/{}".format(user_health[0], user_health[1]), width/2 - 308, height/2 + 165)
+    text("Enemy Health {}/{}".format(enemy_health[0], enemy_health[1]), width/2 - 120, height/2 + 165)
 
 
 def win_screen():
@@ -314,6 +316,14 @@ def print_options(min_range, max_range, options_list):
         text(slice_list[option], 60 + (option * 151), 320)
 
 
+def spare(enemy_attributes, return_value):
+    if enemy_attributes[3]:
+        time.sleep(1)
+        return return_value
+    else:
+        text("You tried to spare the enemy but it missed", 60, 320)
+
+
 def keyPressed():
     global keys_pressed
 
@@ -331,8 +341,7 @@ def keyReleased():
             time.sleep(0.15)
             slide += 1
             print(slide)
-
-    if key == "x" and slide in [3] and user_option_selection_counter not in [0, 3]:
+    elif key == "x" and slide in [3] and user_option_selection_counter not in [0, 3]:
         slide -= 1
         print(slide)
 
@@ -342,10 +351,10 @@ def keyReleased():
             user_option_selection_counter += 1
         elif keyCode == LEFT and user_option_selection_counter > 0:
             user_option_selection_counter -= 1
-    if slide == 3:
+    elif slide == 3:
         # Changes option selection counter
         if keyCode == RIGHT:
-            if user_option_selection_counter == 2 and option_selection < len(user.items) - 1:
+            if user_option_selection_counter == 2 and option_selection < len(user_items.items) - 1:
                 option_selection += 1
             elif user_option_selection_counter == 1 and option_selection < 3:
                 option_selection += 1
@@ -488,29 +497,27 @@ class Enemy:
             user_color = "#FF0000"
             time.sleep(0.25)
             slide = 2
-        elif user.user_attributes[0] <= 0:
+        elif user_health[0] <= 0:
             time.sleep(0.2)
             slide = 6
 
 
-class User:
-    user_attributes = [400, 20]
-    items = ["Burger", "Ice Cream", "Noodles", "Cake"]
-    item_values = [12, 6, 2, 8]
+class Item:
+    user_health = []
+    items = []
+    item_values = []
+    
+    def __init__(self, health, item_list, health_values):
+        self.user_health = health
+        self.items = item_list
+        self.item_values = health_values
 
     def use_item(self, item_index):
-        value = self.item_values[item_index]
+        value = self.item_values[item_index]  # Can use try except here
         self.item_values.pop(item_index)
         self.items.pop(item_index)
 
-        self.user_attributes[0] += value
+        self.user_health[0] += value
 
-        if self.user_attributes[0] > self.user_attributes[1]:
-            self.user_attributes[0] = self.user_attributes[1]
-
-    def spare(self, enemy_attributes):
-        if enemy_attributes[3]:
-            time.sleep(1)
-            return 7
-        else:
-            text("You tried to spare the enemy but it missed", 60, 320)
+        if self.user_health[0] > self.user_health[1]:
+            self.user_health[0] = self.user_health[1]

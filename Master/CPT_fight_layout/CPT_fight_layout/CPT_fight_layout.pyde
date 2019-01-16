@@ -1,5 +1,6 @@
 import random
 import time
+import sys
 
 user_option_selection_counter = 0
 option_selection = 0
@@ -18,7 +19,7 @@ attack_functions = 0
 enemy_attack = None
 user_color = "#FF0000"
 
-user_health = [400, 20]
+USER_HEALTH = [400, 20]
 items = ["Burger", "Ice Cream", "Noodles", "Cake"]
 item_values = [12, 6, 2, 8]
 
@@ -33,7 +34,8 @@ def setup():
     PLAYER_POS_WORLD = [width/2, height/2]
 
     enemy = Enemy()
-    user_items = Item(user_health, items, item_values)
+    user_items = Item(items, item_values)
+    user = User(USER_HEALTH)
 
     enemy.patch()  # Defined at beginning just to get program running
 
@@ -41,11 +43,11 @@ def setup():
 def draw():
     global slide, user_option_selection_counter, option_selection, user, enemy
     global offset, player_pos, movement, map_offset
-    global counter, keys_pressed, enemy_attack, user_health
+    global counter, keys_pressed, enemy_attack, user_health, user_items
     background(0)
 
     if slide == 2 or slide == 3 or slide == 4 or slide == 5:
-        battle_screen_display(user_health, enemy.enemy_attributes[1:3])
+        battle_screen_display(user.user_health, enemy.enemy_attributes[1:3])
 
     if slide == 0:
         title_screen()
@@ -105,7 +107,7 @@ def draw():
             enemy.act(option_selection)
 
         elif user_option_selection_counter == 2:
-            user_items.use_item(option_selection)
+            user.use_item(option_selection)
             slide += 1
         else:
             slide += 1
@@ -114,7 +116,7 @@ def draw():
         player_pos = user_movement(1.5, player_pos, ENEMY_ATTACK_BOUNDARIES)
         enemy.end_attack()  # Needs to be before damage calculation
         draw_user(player_pos[0], player_pos[1], 13, user_color)
-        user_health[0] -= enemy.damage_calc()
+        user.user_health[0] -= enemy.damage_calc()
     elif slide == 6:
         lose_screen()
     elif slide == 7:
@@ -136,11 +138,10 @@ def draw():
         elif counter == 4:
             enemy.gallo()
 
+        print("ran")
         offset = 0
         keys_pressed = [False for key_code in range(256)]
-        user_items.items = items
-        user_items.item_values = item_values
-        user_health[0] = user_health[1]
+        user.user_health[0] = user.user_health[1]
         slide = 1
 
 
@@ -221,6 +222,13 @@ def textbox(corner_one, corner_two, text_list):
         text_list_index = 0
         finished = True
         return finished  # Is this allowed?
+
+
+def type(text, delay, x, y):
+    for beep in text:
+#        text((beep, end = ""), x, y)
+        sys.stdout.flush()
+        time.sleep(delay)
 
 
 # Need refactor more?
@@ -497,27 +505,31 @@ class Enemy:
             user_color = "#FF0000"
             time.sleep(0.25)
             slide = 2
-        elif user_health[0] <= 0:
+        elif user.user_health[0] <= 0:
             time.sleep(0.2)
             slide = 6
 
 
-class Item:
+class User:
     user_health = []
+    
+    def __init__(self, health):
+        self.user_health = health
+
+    def use_item(self, item_index):
+        value = user_items.item_values[item_index]  # Can use try except here
+        (user_items.item_values).pop(item_index)
+        (user_items.items).pop(item_index)
+
+        self.user_health[0] += value
+        if self.user_health[0] > self.user_health[1]:
+            self.user_health[0] = self.user_health[1]
+    
+class Item:
     items = []
     item_values = []
     
-    def __init__(self, health, item_list, health_values):
-        self.user_health = health
+    def __init__(self, item_list, health_values):
         self.items = item_list
         self.item_values = health_values
-
-    def use_item(self, item_index):
-        value = self.item_values[item_index]  # Can use try except here
-        self.item_values.pop(item_index)
-        self.items.pop(item_index)
-
-        self.user_health[0] += value
-
-        if self.user_health[0] > self.user_health[1]:
-            self.user_health[0] = self.user_health[1]
+        

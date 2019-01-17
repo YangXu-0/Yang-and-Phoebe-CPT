@@ -34,7 +34,7 @@ def draw():
     
     user_movement()
 
-def patch_attack():
+def patch_attack(self):
         global offset, obstacle_pos, ratio
         
         if offset < 220:
@@ -43,14 +43,14 @@ def patch_attack():
         fill(255)
         stroke(255)
         strokeWeight(5)
-        obstacle_pos = [width/2  - 110 + offset, (height/2) + 8.3 * ratio, width/2 - 50 + offset, (height/2 + 50) + 8.3 * ratio]
-        rect(obstacle_pos[0], obstacle_pos[1], obstacle_pos[2], obstacle_pos[3])
+        self.obstacle_pos = [width/2  - 110 + offset, (height/2) + 8.3 * ratio, width/2 - 50 + offset, (height/2 + 50) + 8.3 * ratio]
+        rect(self.obstacle_pos[0], self.obstacle_pos[1], self.obstacle_pos[2], self.obstacle_pos[3])
         
         if offset >= 153:
             offset = 0
             ratio = random.randint(0, 10) 
 
-def quack_attack():
+def quack_attack(self):
         global offset, obstacle_pos, ratio
         
         if offset < 220:
@@ -59,14 +59,14 @@ def quack_attack():
         fill(255)
         stroke(255)
         strokeWeight(5)
-        obstacle_pos = [width/2  - 110 + offset, (height/2) + 10.85 * ratio, width/2 - 80 + offset, (height/2 + 30) + 10.85 * ratio]
-        rect(obstacle_pos[0], obstacle_pos[1], obstacle_pos[2], obstacle_pos[3])
+        self.obstacle_pos = [width/2  - 110 + offset, (height/2) + 10.85 * ratio, width/2 - 80 + offset, (height/2 + 30) + 10.85 * ratio]
+        rect(self.obstacle_pos[0], self.obstacle_pos[1], self.obstacle_pos[2], self.obstacle_pos[3])
         
         if offset >= 187:
             offset = 0
             ratio = random.randint(0, 10) 
 
-def desdemona_attack():
+def desdemona_attack(self):
         global offset, obstacle_pos, ratio
         
         if offset < 220:
@@ -75,14 +75,14 @@ def desdemona_attack():
         fill(255)
         stroke(255)
         strokeWeight(5)
-        obstacle_pos = [width/2  - 110 + offset, (height/2) + 8.3 * ratio, width/2 - 50 + offset, (height/2 + 50) + 8.3 * ratio]
-        rect(obstacle_pos[0], obstacle_pos[1], obstacle_pos[2], obstacle_pos[3])
+        self.obstacle_pos = [width/2  - 110 + offset, (height/2) + 8.3 * ratio, width/2 - 50 + offset, (height/2 + 50) + 8.3 * ratio]
+        rect(self.obstacle_pos[0], self.obstacle_pos[1], self.obstacle_pos[2], self.obstacle_pos[3])
         
         if offset >= 157:
             offset = 0
             ratio = random.randint(0, 10) 
         
-def rosalind_attack():
+def rosalind_attack(self):
         global offset, obstacle_pos, ratio
         
         if offset < 220:
@@ -91,14 +91,14 @@ def rosalind_attack():
         fill(255)
         stroke(255)
         strokeWeight(5)
-        obstacle_pos = [width/2  - 110 + 15.4 * ratio, (height/2) + offset, width/2 - 50 + 15.4 * ratio , (height/2 + 50) + offset]
-        rect(obstacle_pos[0], obstacle_pos[1], obstacle_pos[2], obstacle_pos[3])
+        self.obstacle_pos = [width/2  - 110 + 15.4 * ratio, (height/2) + offset, width/2 - 50 + 15.4 * ratio , (height/2 + 50) + offset]
+        rect(self.obstacle_pos[0], self.obstacle_pos[1], self.obstacle_pos[2], self.obstacle_pos[3])
         
         if offset >= 90:
             offset = 0
             ratio = random.randint(0, 10) 
             
-def gallo_attack():
+def gallo_attack(self):
         global offset, obstacle_pos, ratio
         
         if offset < 220:
@@ -107,8 +107,8 @@ def gallo_attack():
         fill(255)
         stroke(255)
         strokeWeight(5)
-        obstacle_pos = [width/2  - 110 + 19 * ratio, (height/2) + offset, width/2 - 80 + 19 * ratio , (height/2 + 80) + offset]
-        rect(obstacle_pos[0], obstacle_pos[1], obstacle_pos[2], obstacle_pos[3])
+        self.obstacle_pos = [width/2  - 110 + 19 * ratio, (height/2) + offset, width/2 - 80 + 19 * ratio , (height/2 + 80) + offset]
+        rect(self.obstacle_pos[0], self.obstacle_pos[1], self.obstacle_pos[2], self.obstacle_pos[3])
         
         if offset >= 56:
             offset = 0

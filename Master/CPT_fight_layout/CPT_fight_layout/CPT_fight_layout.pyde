@@ -56,7 +56,8 @@ def draw():
         image(landscape, map_offset[0], map_offset[1])
         draw_world_user(PLAYER_POS_WORLD[0], PLAYER_POS_WORLD[1], 13)
         if movement:
-            map_offset = user_movement(-1.5, map_offset, WORLD_BOUNDARIES)
+            map_offset = user_movement(-1.5, map_offset, [38, 40, 37, 39])
+            map_offset = movement_boundaries(map_offset, WORLD_BOUNDARIES, 10)
 
         if map_offset[0] <= enemy.enemy_attributes[4]:
             movement = False
@@ -90,12 +91,12 @@ def draw():
             print_options(0, 4, user_items.items)
             user_choice_pos = user_selection(option_selection)
             draw_user(user_choice_pos[0], user_choice_pos[1], 13, user_color)
-        else:
-            # Is using a try except this way good practice?
-            try:
-                slide = int(spare(enemy.enemy_attributes, 7))
-            except:
-                spare(enemy.enemy_attributes, 7)
+        else:   
+            if enemy_attributes[3]:
+                time.sleep(1)
+                return 7
+            else:
+                text("You tried to spare the enemy but it missed", 60, 320)
     elif slide == 4:
         draw_textbox([width/2 - 308, height/2 - 4], [width/2 + 308, height/2 + 139])
 
@@ -122,7 +123,8 @@ def draw():
         draw_fight_box([width/2 - 110, height/2 - 4], [width/2 + 110, height/2 + 139])
 
         enemy_attack()
-        player_pos = user_movement(1.5, player_pos, ENEMY_ATTACK_BOUNDARIES)
+        player_pos = user_movement(1.5, player_pos, ENEMY_ATTACK_BOUNDARIES, [38, 40, 37, 39])
+        player_pos = movement_boundaries(player_pos, ENEMY_ATTACK_BOUNDARIES, 10)
         enemy.end_attack()  # Needs to be before damage calculation
         draw_user(player_pos[0], player_pos[1], 13, user_color)
         user.user_health[0] -= enemy.damage_calc()
@@ -232,13 +234,6 @@ def print_text(x, y, text_list):
         return finished  # Is this allowed?
 
 
-def type(text, delay, x, y):
-    for beep in text:
-#        text((beep, end = ""), x, y)
-        sys.stdout.flush()
-        time.sleep(delay)
-
-
 # Need refactor more?
 def user_selection(counter):
     selection_pos = []
@@ -283,7 +278,7 @@ def user_attack_damage_calc():
     return damage
 
 
-def user_movement(speed, position, boundary_values):
+def user_movement(speed, position, keys_used):
     if keys_pressed[38]:
         position[1] -= speed
     if keys_pressed[40]:
@@ -293,15 +288,19 @@ def user_movement(speed, position, boundary_values):
     if keys_pressed[39]:
         position[0] += speed
 
-    if not(position[0] >= (boundary_values[2] + 10)):
-        position[0] = (boundary_values[2] + 10)
-    if not(position[0] <= (boundary_values[0] - 10)):
-        position[0] = (boundary_values[0] - 10)
-    if not(position[1] >= (boundary_values[3] + 10)):
-        position[1] = (boundary_values[3] + 10)
-    if not(position[1] <= (boundary_values[1] - 10)):
-        position[1] = (boundary_values[1] - 10)
+    return position
 
+
+def movement_boundaries(position, boundary_values, radius):   
+    if not(position[0] >= (boundary_values[2] + radius)):
+        position[0] = (boundary_values[2] + radius)
+    if not(position[0] <= (boundary_values[0] - radius)):
+        position[0] = (boundary_values[0] - radius)
+    if not(position[1] >= (boundary_values[3] + radius)):
+        position[1] = (boundary_values[3] + radius)
+    if not(position[1] <= (boundary_values[1] - radius)):
+        position[1] = (boundary_values[1] - radius)
+    
     return position
 
 
@@ -330,14 +329,6 @@ def print_options(min_range, max_range, options_list):
 
     for option in range(0, len(slice_list)):
         text(slice_list[option], 60 + (option * 151), 320)
-
-
-def spare(enemy_attributes, return_value):
-    if enemy_attributes[3]:
-        time.sleep(1)
-        return return_value
-    else:
-        text("You tried to spare the enemy but it missed", 60, 320)
 
 
 def keyPressed():

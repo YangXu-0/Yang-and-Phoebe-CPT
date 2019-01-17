@@ -60,10 +60,13 @@ def draw():
 
         if map_offset[0] <= enemy.enemy_attributes[4]:
             movement = False
-            done = textbox([11, 324], [629, 468], enemy_dialogue)
+            draw_textbox([11, 324], [629, 468])
+            done = print_text(15, 396, enemy_dialogue)
             if done:
                 slide += 1
     elif slide == 2:
+        draw_textbox([width/2 - 308, height/2 - 4], [width/2 + 308, height/2 + 139])
+        
         # Needs to be defined at the beginning of turn
         enemy_attack = random.choice(attack_functions)
 
@@ -73,6 +76,8 @@ def draw():
         textSize(20)
         text(enemy_dialogue[2], 60, 320)
     elif slide == 3:
+        draw_textbox([width/2 - 308, height/2 - 4], [width/2 + 308, height/2 + 139])
+        
         fill(255)
 
         if user_option_selection_counter == 0:
@@ -90,8 +95,10 @@ def draw():
             try:
                 slide = int(spare(enemy.enemy_attributes, 7))
             except:
-                spare(enemy.enemy_attributes)
+                spare(enemy.enemy_attributes, 7)
     elif slide == 4:
+        draw_textbox([width/2 - 308, height/2 - 4], [width/2 + 308, height/2 + 139])
+
         if user_option_selection_counter == 0:
             if enemy.enemy_attributes[1] - user_attack_damage_calc() < 0:
                 enemy.enemy_attributes[1] = 0
@@ -112,6 +119,8 @@ def draw():
         else:
             slide += 1
     elif slide == 5:
+        draw_fight_box([width/2 - 110, height/2 - 4], [width/2 + 110, height/2 + 139])
+
         enemy_attack()
         player_pos = user_movement(1.5, player_pos, ENEMY_ATTACK_BOUNDARIES)
         enemy.end_attack()  # Needs to be before damage calculation
@@ -138,7 +147,6 @@ def draw():
         elif counter == 4:
             enemy.gallo()
 
-        print("ran")
         offset = 0
         keys_pressed = [False for key_code in range(256)]
         user.user_health[0] = user.user_health[1]
@@ -154,19 +162,6 @@ def title_screen():
 
 
 def battle_screen_display(user_health, enemy_health):
-    if slide == 5:
-        # Fight box
-        fill(0)
-        stroke(255)
-        strokeWeight(5)
-        rect(width/2 - 110, height/2 - 4, width/2 + 110, height/2 + 139)
-    else:
-        # Textbox
-        fill(0)
-        stroke(255)
-        strokeWeight(5)
-        rect(width/2 - 308, height/2 - 4, width/2 + 308, height/2 + 139)
-
     # Selection boxes
     stroke("#FF8503")
     rect(width/2 - 308, height/2 + 177, width/2 - 163, height/2 + 227)
@@ -189,6 +184,20 @@ def battle_screen_display(user_health, enemy_health):
     text("Enemy Health {}/{}".format(enemy_health[0], enemy_health[1]), width/2 - 120, height/2 + 165)
 
 
+def draw_fight_box(corner1, corner2):
+    fill(0)
+    stroke(255)
+    strokeWeight(5)
+    rect(corner1[0], corner1[1], corner2[0], corner2[1])
+
+
+def draw_textbox(corner1, corner2):
+    fill(0)
+    stroke(255)
+    strokeWeight(5)
+    rect(corner1[0], corner1[1], corner2[0], corner2[1])
+
+
 def win_screen():
     fill(255)
     textSize(80)
@@ -199,7 +208,8 @@ def win_screen():
 
 def final_win_screen():
     dialogue = ["You won.", "You've finally escaped.", "The Gallo has been defeated.", ""]
-    return textbox([11, 324], [629, 468], dialogue)
+    draw_textbox([11, 324], [629, 468])
+    return print_text(15, 396, dialogue)
 
 
 def lose_screen():
@@ -210,14 +220,12 @@ def lose_screen():
     text("how unfortunate :)", width/2+85, height/2+75)
 
 
-def textbox(corner_one, corner_two, text_list):
+def print_text(x, y, text_list):
     global text_list_index, slide
 
-    fill(0)
-    rect(corner_one[0], corner_one[1], corner_two[0], corner_two[1])
     fill(255)
     if text_list[text_list_index] != "":
-        text(text_list[text_list_index], 15, 396)
+        text(text_list[text_list_index], x, y)
     else:
         text_list_index = 0
         finished = True
@@ -429,6 +437,7 @@ class Enemy:
         else:
             self.act_path[5] += str(act_index)
 
+        fill(255)
         for i in range(0, len(self.act_path[4])):
             if self.act_path[5][index + 1:].count(self.act_path[4][i]) > 0:
                 index = self.act_path[5][index:].find(self.act_path[4][i])
@@ -524,12 +533,11 @@ class User:
         self.user_health[0] += value
         if self.user_health[0] > self.user_health[1]:
             self.user_health[0] = self.user_health[1]
-    
+
 class Item:
     items = []
     item_values = []
-    
+
     def __init__(self, item_list, health_values):
         self.items = item_list
         self.item_values = health_values
-        

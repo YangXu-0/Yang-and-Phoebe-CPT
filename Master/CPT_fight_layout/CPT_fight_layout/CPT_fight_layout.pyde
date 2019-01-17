@@ -303,12 +303,10 @@ def movement_boundaries(position, boundary_values, radius):
     
     return position
 
-
-def draw_user(x_pos, y_pos, length, color):
-    fill(color)
-    noStroke()
-    ellipse(x_pos, y_pos, length, length)
-
+def draw_user(x_pos, y_pos):
+    global heart
+    heart.resize(0,15)
+    image(heart, x_pos, y_pos)
 
 def draw_world_user(x_pos, y_pos, length):
     if keyCode == RIGHT:

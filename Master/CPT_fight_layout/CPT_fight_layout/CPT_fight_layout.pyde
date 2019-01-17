@@ -468,42 +468,86 @@ class Enemy:
         else:
             return 0
 
-    def patch_attack1(self):
-        global offset, enemy
-
+    def patch_attack(self):
+        global offset, obstacle_pos, ratio
+        
         if offset < 220:
-            offset += 0.5
+            offset += 1
 
-        self.obstacle_pos = [width/2 - 107, height/2 + 67.5, width/2 - 110 + offset, height/2 + 137]
-
-        fill(0, 0, 255)
-        noStroke()
+        fill(255)
+        stroke(255)
+        strokeWeight(5)
+        self.obstacle_pos = [width/2  - 110 + offset, (height/2) + 8.3 * ratio, width/2 - 50 + offset, (height/2 + 50) + 8.3 * ratio]
         rect(self.obstacle_pos[0], self.obstacle_pos[1], self.obstacle_pos[2], self.obstacle_pos[3])
+        
+        if offset >= 153:
+            offset = 0
+            ratio = random.randint(0, 10) 
 
-    def patch_attack2(self):
-        global offset, enemy
+    def quack_attack(self):
+        global offset, obstacle_pos, ratio
+        
+        if offset < 220:
+            offset += 3
 
+        fill(255)
+        stroke(255)
+        strokeWeight(5)
+        self.obstacle_pos = [width/2  - 110 + offset, (height/2) + 10.85 * ratio, width/2 - 80 + offset, (height/2 + 30) + 10.85 * ratio]
+        rect(self.obstacle_pos[0], self.obstacle_pos[1], self.obstacle_pos[2], self.obstacle_pos[3])
+        
+        if offset >= 187:
+            offset = 0
+            ratio = random.randint(0, 10) 
+
+    def desdemona_attack(self):
+        global offset, obstacle_pos, ratio
+        
+        if offset < 220:
+            offset += 2.5
+
+        fill(255)
+        stroke(255)
+        strokeWeight(5)
+        self.obstacle_pos = [width/2  - 110 + offset, (height/2) + 8.3 * ratio, width/2 - 50 + offset, (height/2 + 50) + 8.3 * ratio]
+        rect(self.obstacle_pos[0], self.obstacle_pos[1], self.obstacle_pos[2], self.obstacle_pos[3])
+        
+        if offset >= 157:
+            offset = 0
+            ratio = random.randint(0, 10) 
+        
+    def rosalind_attack(self):
+        global offset, obstacle_pos, ratio
+        
         if offset < 220:
             offset += 2
 
-        self.obstacle_pos = [width/2 - 107, height/2 + 67.5, width/2 - 110 + offset, height/2 + 137]
-
-        fill(255, 0, 0)
-        noStroke()
+        fill(255)
+        stroke(255)
+        strokeWeight(5)
+        self.obstacle_pos = [width/2  - 110 + 15.4 * ratio, (height/2) + offset, width/2 - 50 + 15.4 * ratio , (height/2 + 50) + offset]
         rect(self.obstacle_pos[0], self.obstacle_pos[1], self.obstacle_pos[2], self.obstacle_pos[3])
-
-    def patch_attack3(self):
-        global offset, enemy
-
+        
+        if offset >= 90:
+            offset = 0
+            ratio = random.randint(0, 10) 
+            
+    def gallo_attack(self):
+        global offset, obstacle_pos, ratio
+        
         if offset < 220:
-            offset += 2
+            offset += 2.5
 
-        self.obstacle_pos = [width/2 - 107, height/2 + 67.5, width/2 - 110 + offset, height/2 + 137]
-
-        fill(0, 255, 0)
-        noStroke()
+        fill(255)
+        stroke(255)
+        strokeWeight(5)
+        self.obstacle_pos = [width/2  - 110 + 19 * ratio, (height/2) + offset, width/2 - 80 + 19 * ratio , (height/2 + 80) + offset]
         rect(self.obstacle_pos[0], self.obstacle_pos[1], self.obstacle_pos[2], self.obstacle_pos[3])
-
+        
+        if offset >= 56:
+            offset = 0
+            ratio = random.randint(0, 10) 
+            
     def end_attack(self):
         global offset, user, keys_pressed, player_pos, slide, user_color
         if offset >= 220:

@@ -80,7 +80,7 @@ def draw():
         draw_user(user_choice_pos[0], user_choice_pos[1])
         fill(255)
         textSize(20)
-        text(enemy_dialogue[2], 60, 320)
+        text(enemy_dialogue[1], 60, 320)
 
     elif slide == 3:
         draw_textbox([width/2 - 308, height/2 - 4], [width/2 + 308, height/2 + 139])
@@ -98,9 +98,9 @@ def draw():
             user_choice_pos = user_selection(option_selection)
             draw_user(user_choice_pos[0], user_choice_pos[1])
         else:   
-            if enemy_attributes[3]:
-                time.sleep(1)
-                return 7
+            if enemy.enemy_attributes[3]:
+                time.sleep(0.15)
+                slide = 7
             else:
                 text("You tried to spare the enemy but it missed", 60, 320)
 
@@ -119,7 +119,13 @@ def draw():
                 offset = 0
                 slide += 1
         elif user_option_selection_counter == 1:
-            enemy.act(option_selection)
+            text_index = enemy.act(option_selection)
+            
+            if text_index == len(enemy_dialogue) - 1:
+                text("{}".format(enemy_dialogue[text_index]), 60, 320)
+                enemy.enemy_attributes[3] = True
+            else:
+                text(enemy_dialogue[text_index + 2], 60, 320)
 
         elif user_option_selection_counter == 2:
             user.use_item(option_selection)
@@ -406,7 +412,7 @@ class Enemy:
 
     def patch(self):
         global enemy_dialogue, attack_functions
-        enemy_dialogue = ["Patch blocks the way!", "", "You will be judged for your every action...", "Patch is annoyed", "Patch is taken aback, surprised.", "Patch smiles at you", "Patch laughs and his arrogant vibe dissolves into a friendly aura."]
+        enemy_dialogue = ["Patch blocks the way!", "You will be judged for your every action...", "Patch is annoyed", "Patch is taken aback, surprised.", "Patch smiles at you", "Patch laughs and his arrogant vibe dissolves into a friendly aura."]
         self.enemy_attributes = ["Patch", 1, 50, False, -88]
         self.act_path = ["Taunt", "Compliment", "Critcize", "Encourage", "131", ""]
         attack_functions = [enemy.patch_attack1, enemy.patch_attack1]
@@ -439,48 +445,11 @@ class Enemy:
         self.act_path = ["Plead", "Reason", "Talk", "Compliment", "0", ""]
         attack_functions = [enemy.patch_attack1, enemy.patch_attack2, enemy.patch_attack3]
 
-    def act(self, act_index):
-        index = 0
-        number_correct_choices = 0
-
-        if self.act_path[5] == "":
-            self.act_path[5] = str(act_index)
-        else:
-            self.act_path[5] += str(act_index)
-
-        fill(255)
-        for i in range(0, len(self.act_path[4])):
-            if self.act_path[5][index + 1:].count(self.act_path[4][i]) > 0:
-                index = self.act_path[5][index:].find(self.act_path[4][i])
-                number_correct_choices += 1
-            else:
-                text(enemy_dialogue[number_correct_choices + 3], 60, 320)
-                break
-        else:
-            print(len(enemy_dialogue))
-            text("{}".format(enemy_dialogue[len(enemy_dialogue) - 1]), 60, 320)
-            self.enemy_attributes[3] = True
-
-    def collision_detection(self, player_pos):
-        for i in range(0, len(self.obstacle_pos), 4):
-            if player_pos[0] >= self.obstacle_pos[i] and player_pos[0] <= self.obstacle_pos[i + 2] \
-                and player_pos[1] >= self.obstacle_pos[i + 1] and player_pos[1] <= self.obstacle_pos[i + 3] \
-                    and self.collision_immune is False:
-                return True
-        else:
-            return False
-
-    def immunity(self):
-        if self.collision_immune:
-            if frameCount - self.immune_time_elapsed >= self.IMMUNE_TIME:
-                self.collision_immune = False
-                self.immune_time_elapsed = 0
-
     def patch_attack1(self):
         global offset, enemy
 
         if offset < 220:
-            offset += 0.1
+            offset += 1
 
         self.obstacle_pos = [width/2  - 107, height/2 + 67.5, width/2 - 110 + offset, height/2 + 137]
 
@@ -566,7 +535,41 @@ class Enemy:
         
         if offset >= 56:
             offset = 0
-            ratio = random.randint(0, 10) 
+            ratio = random.randint(0, 10)
+            
+    def act(self, act_index):
+        index = 0
+        number_correct_choices = 0
+
+        if self.act_path[5] == "":
+            self.act_path[5] = str(act_index)
+        else:
+            self.act_path[5] += str(act_index)
+
+        fill(255)
+        for action in range(0, len(self.act_path[4])):
+            if self.act_path[5][index + 1:].count(self.act_path[4][action]) > 0:
+                index = self.act_path[5][index:].find(self.act_path[4][action])
+                number_correct_choices += 1
+            else:
+                return number_correct_choices
+        else:
+            return len(enemy_dialogue) - 1
+
+    def collision_detection(self, player_pos):
+        for coordinate in range(0, len(self.obstacle_pos), 4):
+            if player_pos[0] >= self.obstacle_pos[coordinate] and player_pos[0] <= self.obstacle_pos[coordinate + 2] \
+                and player_pos[1] >= self.obstacle_pos[coordinate + 1] and player_pos[1] <= self.obstacle_pos[coordinate + 3] \
+                    and self.collision_immune is False:
+                return True
+        else:
+            return False
+
+    def immunity(self):
+        if self.collision_immune:
+            if frameCount - self.immune_time_elapsed >= self.IMMUNE_TIME:
+                self.collision_immune = False
+                self.immune_time_elapsed = 0
             
     def reset(self):
         global offset, user, keys_pressed, player_pos, slide, user_color

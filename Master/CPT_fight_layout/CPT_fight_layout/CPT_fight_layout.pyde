@@ -1,6 +1,5 @@
 import random
 import time
-import sys
 
 user_option_selection_counter = 0
 option_selection = 0
@@ -10,27 +9,29 @@ offset = 0
 keys_pressed = [False for key_code in range(256)]
 enemy_dialogue = []
 movement = True
-text_list_index = 0
+text_list_index = 0 # Maybe fix
 ENEMY_ATTACK_BOUNDARIES = [430, 379, 210, 236]
 WORLD_BOUNDARIES = [0, 150, -891, -72]
 map_offset = [0, 0]
-counter = 0
+counter = 4
 attack_functions = 0
 enemy_attack = None
 user_color = "#FF0000"
-
 USER_HEALTH = [400, 20]
 items = ["Burger", "Ice Cream", "Noodles", "Cake"]
 item_values = [12, 6, 2, 8]
+ENEMY_DAMAGE = 4
 
 
 def setup():
-    global user, enemy, landscape, PLAYER_POS_WORLD, user_items
+    global user, enemy, landscape, PLAYER_POS_WORLD, user_items, heart
     size(640, 480)
     rectMode(CORNERS)
     frameRate(100)
 
+    heart = loadImage("heart.png")
     landscape = loadImage("map.png")
+
     PLAYER_POS_WORLD = [width/2, height/2]
 
     enemy = Enemy()
@@ -51,6 +52,7 @@ def draw():
 
     if slide == 0:
         title_screen()
+
     elif slide == 1:
         landscape.resize(0, 800)
         image(landscape, map_offset[0], map_offset[1])
@@ -62,9 +64,12 @@ def draw():
         if map_offset[0] <= enemy.enemy_attributes[4]:
             movement = False
             draw_textbox([11, 324], [629, 468])
-            done = print_text(15, 396, enemy_dialogue)
-            if done:
+            if text_list_index <= 0:
+                fill(255)
+                text(enemy_dialogue[text_list_index], 25, 405)
+            else:
                 slide += 1
+
     elif slide == 2:
         draw_textbox([width/2 - 308, height/2 - 4], [width/2 + 308, height/2 + 139])
         
@@ -72,10 +77,11 @@ def draw():
         enemy_attack = random.choice(attack_functions)
 
         user_choice_pos = user_selection(user_option_selection_counter)
-        draw_user(user_choice_pos[0], user_choice_pos[1], 13, user_color)
+        draw_user(user_choice_pos[0], user_choice_pos[1])
         fill(255)
         textSize(20)
         text(enemy_dialogue[2], 60, 320)
+
     elif slide == 3:
         draw_textbox([width/2 - 308, height/2 - 4], [width/2 + 308, height/2 + 139])
         
@@ -86,17 +92,18 @@ def draw():
         elif user_option_selection_counter == 1:
             print_options(0, 4, enemy.act_path)
             user_choice_pos = user_selection(option_selection)
-            draw_user(user_choice_pos[0], user_choice_pos[1], 13, user_color)
+            draw_user(user_choice_pos[0], user_choice_pos[1])
         elif user_option_selection_counter == 2:
             print_options(0, 4, user_items.items)
             user_choice_pos = user_selection(option_selection)
-            draw_user(user_choice_pos[0], user_choice_pos[1], 13, user_color)
+            draw_user(user_choice_pos[0], user_choice_pos[1])
         else:   
             if enemy_attributes[3]:
                 time.sleep(1)
                 return 7
             else:
                 text("You tried to spare the enemy but it missed", 60, 320)
+
     elif slide == 4:
         draw_textbox([width/2 - 308, height/2 - 4], [width/2 + 308, height/2 + 139])
 
@@ -119,25 +126,38 @@ def draw():
             slide += 1
         else:
             slide += 1
+
     elif slide == 5:
         draw_fight_box([width/2 - 110, height/2 - 4], [width/2 + 110, height/2 + 139])
 
         enemy_attack()
-        player_pos = user_movement(1.5, player_pos, ENEMY_ATTACK_BOUNDARIES, [38, 40, 37, 39])
+        player_pos = user_movement(1.5, player_pos, [38, 40, 37, 39])
         player_pos = movement_boundaries(player_pos, ENEMY_ATTACK_BOUNDARIES, 10)
         enemy.end_attack()  # Needs to be before damage calculation
-        draw_user(player_pos[0], player_pos[1], 13, user_color)
-        user.user_health[0] -= enemy.damage_calc()
+        draw_user(player_pos[0], player_pos[1])
+        
+        if enemy.collision_immune == True:
+            tint(165, 35, 35)
+        else:
+            noTint()
+        
+        if enemy.collision_detection(player_pos):
+            enemy.collision_immune = True
+            enemy.immune_time_elapsed = frameCount
+            user.user_health[0] -= ENEMY_DAMAGE
+        
+        enemy.immunity()
+
     elif slide == 6:
         lose_screen()
+
     elif slide == 7:
         if counter == 4:
-            done = final_win_screen()
-            if done:
-                exit()
+            final_win_screen()
         else:
             movement = True
             win_screen()
+
     elif slide == 8:
         counter += 1
         if counter == 1:
@@ -209,9 +229,13 @@ def win_screen():
 
 
 def final_win_screen():
-    dialogue = ["You won.", "You've finally escaped.", "The Gallo has been defeated.", ""]
+    dialogue = ["You won.", "You've finally escaped.", "The Gallo has been defeated."]
     draw_textbox([11, 324], [629, 468])
-    return print_text(15, 396, dialogue)
+    if text_list_index <= 2:
+        fill(255)
+        text(dialogue[text_list_index], 25, 405)
+    else:
+        exit()
 
 
 def lose_screen():
@@ -220,18 +244,6 @@ def lose_screen():
     text("You Lose.", width/2 - 175, height/2 + 40)
     textSize(10)
     text("how unfortunate :)", width/2+85, height/2+75)
-
-
-def print_text(x, y, text_list):
-    global text_list_index, slide
-
-    fill(255)
-    if text_list[text_list_index] != "":
-        text(text_list[text_list_index], x, y)
-    else:
-        text_list_index = 0
-        finished = True
-        return finished  # Is this allowed?
 
 
 # Need refactor more?
@@ -279,13 +291,13 @@ def user_attack_damage_calc():
 
 
 def user_movement(speed, position, keys_used):
-    if keys_pressed[38]:
+    if keys_pressed[keys_used[0]]:
         position[1] -= speed
-    if keys_pressed[40]:
+    if keys_pressed[keys_used[1]]:
         position[1] += speed
-    if keys_pressed[37]:
+    if keys_pressed[keys_used[2]]:
         position[0] -= speed
-    if keys_pressed[39]:
+    if keys_pressed[keys_used[3]]:
         position[0] += speed
 
     return position
@@ -303,10 +315,11 @@ def movement_boundaries(position, boundary_values, radius):
     
     return position
 
+
 def draw_user(x_pos, y_pos):
-    global heart
-    heart.resize(0,15)
+    heart.resize(0, 15)
     image(heart, x_pos, y_pos)
+    
 
 def draw_world_user(x_pos, y_pos, length):
     if keyCode == RIGHT:
@@ -387,14 +400,14 @@ class Enemy:
         enemy_dialogue = ["Patch blocks the way!", "", "You will be judged for your every action...", "Patch is annoyed", "Patch is taken aback, surprised.", "Patch smiles at you", "Patch laughs and his arrogant vibe dissolves into a friendly aura."]
         self.enemy_attributes = ["Patch", 1, 50, False, -88]
         self.act_path = ["Taunt", "Compliment", "Critcize", "Encourage", "131", ""]
-        attack_functions = [enemy.patch_attack1, enemy.patch_attack2, enemy.patch_attack3]
+        attack_functions = [enemy.patch_attack1, enemy.patch_attack1]
 
     def rosalind(self):
         global enemy_dialogue
         enemy_dialogue = ["Rosalind stumbles in the way.", "", "Rosalind apologizes.", "Rosalind cries pitifully", "Rosalind cries out, beggin for your sympathy", "Rosalind sniffs and wipes away her tears.", "Rosaline finally cracks a smile, she no longer wants to fight."]
         self.enemy_attributes = ["Rosalind", 30, 40, False, -360]  # Still need to change stats and location
         self.act_path = ["Threaten", "Play", "Smile", "Hug", "231", ""]
-        attack_functions = [enemy.patch_attack1, enemy.patch_attack2, enemy.patch_attack3]
+        attack_functions = [enemy.rosalind_attack, enemy.rosalind_attack]
 
     def quack(self):
         global enemy_dialogue
@@ -439,23 +452,32 @@ class Enemy:
             text("{}".format(enemy_dialogue[len(enemy_dialogue) - 1]), 60, 320)
             self.enemy_attributes[3] = True
 
-    def damage_calc(self):
-        global player_pos, keys_pressed, user_color
+    def collision_detection(self, player_pos):
+        for i in range(0, len(self.obstacle_pos), 4):
+            if player_pos[0] >= self.obstacle_pos[i] and player_pos[0] <= self.obstacle_pos[i + 2] \
+                and player_pos[1] >= self.obstacle_pos[i + 1] and player_pos[1] <= self.obstacle_pos[i + 3] \
+                    and self.collision_immune is False:
+                return True
+        else:
+            return False
 
+    def immunity(self):
         if self.collision_immune:
             if frameCount - self.immune_time_elapsed >= self.IMMUNE_TIME:
-                user_color = "#FF0000"
                 self.collision_immune = False
                 self.immune_time_elapsed = 0
 
-        for i in range(0, len(self.obstacle_pos), 4):
-            if player_pos[0] >= self.obstacle_pos[i] and player_pos[0] <= self.obstacle_pos[i + 2] and player_pos[1] >= self.obstacle_pos[i + 1] and player_pos[1] <= self.obstacle_pos[i + 3] and self.collision_immune is False:
-                user_color = "#A52323"
-                self.collision_immune = True
-                self.immune_time_elapsed = frameCount
-                return 4
-        else:
-            return 0
+    def patch_attack1(self):
+        global offset, enemy
+
+        if offset < 220:
+            offset += 0.1
+
+        self.obstacle_pos = [width/2  - 107, height/2 + 67.5, width/2 - 110 + offset, height/2 + 137]
+
+        fill(0, 0, 255)
+        noStroke()
+        rect(self.obstacle_pos[0], self.obstacle_pos[1], self.obstacle_pos[2], self.obstacle_pos[3])
 
     def patch_attack(self):
         global offset, obstacle_pos, ratio
@@ -546,6 +568,7 @@ class Enemy:
             player_pos = [320, 308]
             user_color = "#FF0000"
             time.sleep(0.25)
+            self.collision_immune = False
             slide = 2
         elif user.user_health[0] <= 0:
             time.sleep(0.2)

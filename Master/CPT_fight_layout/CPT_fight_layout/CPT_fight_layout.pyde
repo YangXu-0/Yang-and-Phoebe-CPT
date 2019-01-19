@@ -108,10 +108,10 @@ def draw():
         draw_textbox([width/2 - 308, height/2 - 4], [width/2 + 308, height/2 + 139])
 
         if user_option_selection_counter == 0:
-            if enemy.enemy_attributes[1] - user_attack_damage_calc() < 0:
+            if enemy.enemy_attributes[1] - user_attack_damage_calc(24.5, 245, offset) < 0:
                 enemy.enemy_attributes[1] = 0
             else:
-                enemy.enemy_attributes[1] -= user_attack_damage_calc()
+                enemy.enemy_attributes[1] -= user_attack_damage_calc(24.5, 245, offset)
             if enemy.enemy_attributes[1] <= 0:
                 time.sleep(1)
                 slide = 7
@@ -131,9 +131,12 @@ def draw():
         draw_fight_box([width/2 - 110, height/2 - 4], [width/2 + 110, height/2 + 139])
 
         enemy_attack()
+        if user.user_health[0] <= 0:
+            time.sleep(0.15)
+            slide = 6
+        
         player_pos = user_movement(1.5, player_pos, [38, 40, 37, 39])
         player_pos = movement_boundaries(player_pos, ENEMY_ATTACK_BOUNDARIES, 10)
-        enemy.end_attack()  # Needs to be before damage calculation
         draw_user(player_pos[0], player_pos[1])
         
         if enemy.collision_immune == True:
@@ -147,6 +150,10 @@ def draw():
             user.user_health[0] -= ENEMY_DAMAGE
         
         enemy.immunity()
+        
+        if offset >= 220:  #This needs to be changed to work for all attacks
+            enemy.reset()
+            slide = 2
 
     elif slide == 6:
         lose_screen()
@@ -160,6 +167,7 @@ def draw():
 
     elif slide == 8:
         counter += 1
+        
         if counter == 1:
             enemy.rosalind()
         elif counter == 2:
@@ -246,7 +254,6 @@ def lose_screen():
     text("how unfortunate :)", width/2+85, height/2+75)
 
 
-# Need refactor more?
 def user_selection(counter):
     selection_pos = []
 
@@ -271,6 +278,7 @@ def fight():
     stroke(255, 59, 59)
     rect(width/2, height/2 + 15, width/2, height/2 + 120)
 
+    # Moving white bar
     stroke(255)
     strokeWeight(10)
     rect((width/2 - 246) + offset, height/2 + 15, (width/2 - 245) + offset, height/2 + 120)
@@ -282,10 +290,8 @@ def fight():
     offset += 2
 
 
-def user_attack_damage_calc():
-    global offset
-    # Need to abstract midpoint and endpoints somehow
-    damage = int(24.5 - (abs(245 - offset) / 10))
+def user_attack_damage_calc(start, end, hit_location):
+    damage = int(start - (abs(end - hit_location) / 10))
 
     return damage
 
@@ -359,9 +365,11 @@ def keyReleased():
             time.sleep(0.15)
             slide += 1
             print(slide)
+
     elif key == "x" and slide in [3] and user_option_selection_counter not in [0, 3]:
         slide -= 1
         print(slide)
+
 
     if slide == 2:
         # Changes option selection counter
@@ -369,6 +377,7 @@ def keyReleased():
             user_option_selection_counter += 1
         elif keyCode == LEFT and user_option_selection_counter > 0:
             user_option_selection_counter -= 1
+
     elif slide == 3:
         # Changes option selection counter
         if keyCode == RIGHT:
@@ -425,7 +434,7 @@ class Enemy:
 
     def gallo(self):
         global enemy_dialogue
-        enemy_dialogue = ["Gallo blocks the way!", "", "Gallo takes your phone", "Gallo transcends this realm of mortals. Your actions are meaningless."]
+        enemy_dialogue = ["Gallo blocks the way!", "Gallo takes your phone", "Gallo transcends this realm of mortals. Your actions are meaningless."]
         self.enemy_attributes = ["Gallo", 300, 300, False, -881]
         self.act_path = ["Plead", "Reason", "Talk", "Compliment", "0", ""]
         attack_functions = [enemy.patch_attack1, enemy.patch_attack2, enemy.patch_attack3]
@@ -559,20 +568,16 @@ class Enemy:
             offset = 0
             ratio = random.randint(0, 10) 
             
-    def end_attack(self):
+    def reset(self):
         global offset, user, keys_pressed, player_pos, slide, user_color
-        if offset >= 220:
-            self.obstacle_pos = []
-            offset = 0
-            keys_pressed = [False for key_code in range(256)]
-            player_pos = [320, 308]
-            user_color = "#FF0000"
-            time.sleep(0.25)
-            self.collision_immune = False
-            slide = 2
-        elif user.user_health[0] <= 0:
-            time.sleep(0.2)
-            slide = 6
+
+        self.obstacle_pos = []
+        offset = 0
+        keys_pressed = [False for key_code in range(256)]
+        player_pos = [320, 308]
+        user_color = "#FF0000"
+        time.sleep(0.25)
+        self.collision_immune = False
 
 
 class User:

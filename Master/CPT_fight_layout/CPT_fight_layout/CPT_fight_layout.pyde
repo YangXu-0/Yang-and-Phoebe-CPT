@@ -13,7 +13,7 @@ text_list_index = 0 # Maybe fix
 ENEMY_ATTACK_BOUNDARIES = [430, 379, 210, 236]
 WORLD_BOUNDARIES = [0, 150, -891, -72]
 map_offset = [0, 0]
-counter = 4
+counter = 0
 attack_functions = 0
 enemy_attack = None
 user_color = "#FF0000"
@@ -76,7 +76,7 @@ def draw():
         # Needs to be defined at the beginning of turn
         enemy_attack = random.choice(attack_functions)
 
-        user_choice_pos = user_selection(user_option_selection_counter)
+        user_choice_pos = [37 + (157 * user_option_selection_counter), 442]
         draw_user(user_choice_pos[0], user_choice_pos[1])
         fill(255)
         textSize(20)
@@ -91,11 +91,15 @@ def draw():
             fight()
         elif user_option_selection_counter == 1:
             print_options(0, 4, enemy.act_path)
-            user_choice_pos = user_selection(option_selection)
+            user_choice_pos = [56 + (151 * option_selection), 320]  #problem
             draw_user(user_choice_pos[0], user_choice_pos[1])
         elif user_option_selection_counter == 2:
             print_options(0, 4, user_items.items)
-            user_choice_pos = user_selection(option_selection)
+            
+            if option_selection > len(user_items.items) - 1:
+                option_selection = len(user_items.items) - 1
+            
+            user_choice_pos = [56 + (151 * option_selection), 320]
             draw_user(user_choice_pos[0], user_choice_pos[1])
         else:   
             if enemy.enemy_attributes[3]:
@@ -128,7 +132,7 @@ def draw():
                 text(enemy_dialogue[text_index + 2], 60, 320)
 
         elif user_option_selection_counter == 2:
-            user.use_item(option_selection)
+            user.use_item(option_selection, user_items.items, user_items.item_values)
             slide += 1
         else:
             slide += 1
@@ -200,6 +204,7 @@ def title_screen():
 def battle_screen_display(user_health, enemy_health):
     # Selection boxes
     stroke("#FF8503")
+    fill(0)
     rect(width/2 - 308, height/2 + 177, width/2 - 163, height/2 + 227)
     rect(width/2 - 151, height/2 + 177, width/2 - 6, height/2 + 227)
     rect(width/2 + 6, height/2 + 177, width/2 + 151, height/2 + 227)
@@ -216,22 +221,36 @@ def battle_screen_display(user_health, enemy_health):
     # Health fractions
     fill(255)
     textSize(16)
-    text("Player Health {}/{}".format(user_health[0], user_health[1]), width/2 - 308, height/2 + 165)
-    text("Enemy Health {}/{}".format(enemy_health[0], enemy_health[1]), width/2 - 120, height/2 + 165)
+
+    try:
+        text("Player Health {}/{}".format(user_health[0], user_health[1]), width/2 - 308, height/2 + 165)
+    except:
+        raise Exception("User's health should contain 2 integers in a list. The list contained '{}'".format(user_health))
+
+    try:
+        text("Enemy Health {}/{}".format(enemy_health[0], enemy_health[1]), width/2 - 120, height/2 + 165)
+    except:
+        raise Exception("Enemy's health should contain 2 integers in a list. The list contained '{}'".format(enemy_health))
 
 
 def draw_fight_box(corner1, corner2):
     fill(0)
     stroke(255)
     strokeWeight(5)
-    rect(corner1[0], corner1[1], corner2[0], corner2[1])
+    try:
+        rect(corner1[0], corner1[1], corner2[0], corner2[1])
+    except:
+        raise Exception("corner1 and corner2 should be lists, each containing a set of coordinates (ints or floats). corner1 contained '{}'. corner2 contained '{}'.".format(corner1, corner2))
 
 
 def draw_textbox(corner1, corner2):
     fill(0)
     stroke(255)
     strokeWeight(5)
-    rect(corner1[0], corner1[1], corner2[0], corner2[1])
+    try:
+        rect(corner1[0], corner1[1], corner2[0], corner2[1])
+    except:
+        raise Exception("corner1 and corner2 should be lists, each containing a set of coordinates (ints or floats). corner1 contained '{}'. corner2 contained '{}'.".format(corner1, corner2))
 
 
 def win_screen():
@@ -239,7 +258,7 @@ def win_screen():
     textSize(80)
     text("You Win!", width/2 - 175, height/2 + 40)
     textSize(10)
-    text("...we'll get you next time", width/2+50, height/2+75)
+    text("...we'll get you next time", width/2 + 50, height/2 + 75)
 
 
 def final_win_screen():
@@ -260,18 +279,7 @@ def lose_screen():
     text("how unfortunate :)", width/2+85, height/2+75)
 
 
-def user_selection(counter):
-    selection_pos = []
-
-    if slide == 2:
-        selection_pos = [37 + (157 * counter), 442]
-    else:
-        selection_pos = [56 + (151 * counter), 320]
-
-    return selection_pos
-
-
-def fight():
+def fight():  #problem
     global offset, slide
 
     # Box
@@ -297,12 +305,15 @@ def fight():
 
 
 def user_attack_damage_calc(start, end, hit_location):
-    damage = int(start - (abs(end - hit_location) / 10))
-
+    try:
+        damage = int(start - (abs(end - hit_location) / 10))
+    except:
+        raise Exception("All three arguments should be ints or floats")
+        
     return damage
 
 
-def user_movement(speed, position, keys_used):
+def user_movement(speed, position, keys_used):  #problem
     if keys_pressed[keys_used[0]]:
         position[1] -= speed
     if keys_pressed[keys_used[1]]:
@@ -315,7 +326,7 @@ def user_movement(speed, position, keys_used):
     return position
 
 
-def movement_boundaries(position, boundary_values, radius):   
+def movement_boundaries(position, boundary_values, radius):  #problem
     if not(position[0] >= (boundary_values[2] + radius)):
         position[0] = (boundary_values[2] + radius)
     if not(position[0] <= (boundary_values[0] - radius)):
@@ -330,7 +341,11 @@ def movement_boundaries(position, boundary_values, radius):
 
 def draw_user(x_pos, y_pos):
     heart.resize(0, 15)
-    image(heart, x_pos, y_pos)
+    
+    try:
+        image(heart, x_pos, y_pos)
+    except:
+        raise Exception("x_pos and y_pos should be ints or floats. Respectively, they were '{}' and '{}'.".format(x_pos, y_pos))
     
 
 def draw_world_user(x_pos, y_pos, length):
@@ -348,7 +363,10 @@ def draw_world_user(x_pos, y_pos, length):
 
 
 def print_options(min_range, max_range, options_list):
-    slice_list = options_list[min_range: max_range]
+    try:
+        slice_list = options_list[min_range: max_range]
+    except:
+        raise Exception("min_range, max_range should be ints within the length of options_list (needs to be a list).")
 
     for option in range(0, len(slice_list)):
         text(slice_list[option], 60 + (option * 151), 320)
@@ -361,20 +379,18 @@ def keyPressed():
         keys_pressed[keyCode] = True
 
 
-def keyReleased():
+def keyReleased():  #problem
     global user_option_selection_counter, slide, option_selection, keys_pressed, text_list_index
 
     if key == "z":
         if slide in [1, 7] and movement is False:
             text_list_index += 1
+            
         elif slide in [0, 2, 3, 4, 7]:
             time.sleep(0.15)
             slide += 1
-            print(slide)
-
     elif key == "x" and slide in [3] and user_option_selection_counter not in [0, 3]:
         slide -= 1
-        print(slide)
 
 
     if slide == 2:
@@ -383,7 +399,6 @@ def keyReleased():
             user_option_selection_counter += 1
         elif keyCode == LEFT and user_option_selection_counter > 0:
             user_option_selection_counter -= 1
-
     elif slide == 3:
         # Changes option selection counter
         if keyCode == RIGHT:
@@ -394,8 +409,7 @@ def keyReleased():
         elif keyCode == LEFT and option_selection > 0:
             option_selection -= 1
 
-    if slide == 5 or slide == 1:
-        keys_pressed[keyCode] = False
+    keys_pressed[keyCode] = False
 
 
 def mousePressed():
@@ -419,21 +433,21 @@ class Enemy:
 
     def rosalind(self):
         global enemy_dialogue
-        enemy_dialogue = ["Rosalind stumbles in the way.", "", "Rosalind apologizes.", "Rosalind cries pitifully", "Rosalind cries out, beggin for your sympathy", "Rosalind sniffs and wipes away her tears.", "Rosaline finally cracks a smile, she no longer wants to fight."]
+        enemy_dialogue = ["Rosalind stumbles in the way.", "Rosalind apologizes.", "Rosalind cries pitifully", "Rosalind cries out, beggin for your sympathy", "Rosalind sniffs and wipes away her tears.", "Rosaline finally cracks a smile, she no longer wants to fight."]
         self.enemy_attributes = ["Rosalind", 30, 40, False, -360]  # Still need to change stats and location
         self.act_path = ["Threaten", "Play", "Smile", "Hug", "231", ""]
         attack_functions = [enemy.rosalind_attack, enemy.rosalind_attack]
 
     def quack(self):
         global enemy_dialogue
-        enemy_dialogue = ["Quack blocks the way!", "", "Quack brings a friend", "Woodward growls at you", "Quack watches you pet his little friend", "Both Quack and Woordward find you very amusing", "Quack and Woodward no longer want to fight."]
+        enemy_dialogue = ["Quack blocks the way!", "Quack brings a friend", "Woodward growls at you", "Quack watches you pet his little friend", "Both Quack and Woordward find you very amusing", "Quack and Woodward no longer want to fight."]
         self.enemy_attributes = ["Quack", 30, 40, False, -582]
         self.act_path = ["Taunt", "Ignore", "Joke", "Pet", "1323", ""]
         attack_functions = [enemy.patch_attack1, enemy.patch_attack2, enemy.patch_attack3]
 
     def desdemona(self):
         global enemy_dialogue
-        enemy_dialogue = ["Desdemona blocks the way!", "", "Desmonda files her nails", "You are ignored", "She glares at you, the insult hits a sore spot", "Desdemona's confidence goes down", "Desdemona is getting scared", "Desdemona cowers in fright."]
+        enemy_dialogue = ["Desdemona blocks the way!", "Desmonda files her nails", "You are ignored", "She glares at you, the insult hits a sore spot", "Desdemona's confidence goes down", "Desdemona is getting scared", "Desdemona cowers in fright."]
         self.enemy_attributes = ["Desdemona", 30, 40, False, -759]
         self.act_path = ["Threaten", "Cheer", "Insult", "Scare", "2023", ""]
         attack_functions = [enemy.patch_attack1, enemy.patch_attack2, enemy.patch_attack3]
@@ -446,7 +460,7 @@ class Enemy:
         attack_functions = [enemy.patch_attack1, enemy.patch_attack2, enemy.patch_attack3]
 
     def patch_attack1(self):
-        global offset, enemy
+        global offset
 
         if offset < 220:
             offset += 1
@@ -466,8 +480,16 @@ class Enemy:
         fill(255)
         stroke(255)
         strokeWeight(5)
-        self.obstacle_pos = [width/2  - 110 + offset, (height/2) + 8.3 * ratio, width/2 - 50 + offset, (height/2 + 50) + 8.3 * ratio]
-        rect(self.obstacle_pos[0], self.obstacle_pos[1], self.obstacle_pos[2], self.obstacle_pos[3])
+        
+        try:
+            self.obstacle_pos = [width/2  - 110 + offset, (height/2) + 8.3 * ratio, width/2 - 50 + offset, (height/2 + 50) + 8.3 * ratio]
+        except:
+            raise Exception("offset and ratio need to be ints or floats.")
+            
+        try:
+            rect(self.obstacle_pos[0], self.obstacle_pos[1], self.obstacle_pos[2], self.obstacle_pos[3])
+        except:
+            raise Exception("obstacle_pos needs to be a list containing ints or floats of at least 2 corners of an obstacle.")
         
         if offset >= 153:
             offset = 0
@@ -537,7 +559,7 @@ class Enemy:
             offset = 0
             ratio = random.randint(0, 10)
             
-    def act(self, act_index):
+    def act(self, act_index):  #problem
         index = 0
         number_correct_choices = 0
 
@@ -558,28 +580,40 @@ class Enemy:
 
     def collision_detection(self, player_pos):
         for coordinate in range(0, len(self.obstacle_pos), 4):
-            if player_pos[0] >= self.obstacle_pos[coordinate] and player_pos[0] <= self.obstacle_pos[coordinate + 2] \
+            try:
+                player_pos[0] >= self.obstacle_pos[coordinate] and player_pos[0] <= self.obstacle_pos[coordinate + 2] \
                 and player_pos[1] >= self.obstacle_pos[coordinate + 1] and player_pos[1] <= self.obstacle_pos[coordinate + 3] \
-                    and self.collision_immune is False:
-                return True
+                    and self.collision_immune is False
+            except:
+                raise Exception("player_pos should contain the x and y pos (ints) of player in a list as separate elements. obstacle_pos should contain the location (x1, y1, x2, y2) of every obstacle as separate elements in a list.")
+            else:
+                if player_pos[0] >= self.obstacle_pos[coordinate] and player_pos[0] <= self.obstacle_pos[coordinate + 2] \
+                    and player_pos[1] >= self.obstacle_pos[coordinate + 1] and player_pos[1] <= self.obstacle_pos[coordinate + 3] \
+                        and self.collision_immune is False:
+                    return True
         else:
             return False
 
     def immunity(self):
         if self.collision_immune:
-            if frameCount - self.immune_time_elapsed >= self.IMMUNE_TIME:
-                self.collision_immune = False
-                self.immune_time_elapsed = 0
+            try:
+                frameCount - self.immune_time_elapsed >= self.IMMUNE_TIME
+            except:
+                raise Exception("immune_time_elapsed and IMMUNE_TIME should be ints or floats.")
+            else:
+                if frameCount - self.immune_time_elapsed >= self.IMMUNE_TIME:
+                    self.collision_immune = False
+                    self.immune_time_elapsed = 0
             
     def reset(self):
         global offset, user, keys_pressed, player_pos, slide, user_color
 
         self.obstacle_pos = []
         offset = 0
-        keys_pressed = [False for key_code in range(256)]
         player_pos = [320, 308]
         user_color = "#FF0000"
         time.sleep(0.25)
+        noTint()
         self.collision_immune = False
 
 
@@ -589,14 +623,31 @@ class User:
     def __init__(self, health):
         self.user_health = health
 
-    def use_item(self, item_index):
-        value = user_items.item_values[item_index]  # Can use try except here
-        (user_items.item_values).pop(item_index)
-        (user_items.items).pop(item_index)
+    def use_item(self, item_index, list_items, list_item_values):
+        try:
+            value = list_item_values[item_index]
+        except:
+            raise Exception("item_index needs to be an int smaller than the length of list_item_values (needs to be list)")
+        (list_item_values).pop(item_index)
 
-        self.user_health[0] += value
-        if self.user_health[0] > self.user_health[1]:
-            self.user_health[0] = self.user_health[1]
+        try:
+            (list_items).pop(item_index)
+        except:
+            raise Exception("item_index needs to be an int smaller than the length of list_items (needs to be list)")
+
+        try:
+            self.user_health[0] += value
+        except:
+            raise Exception("user_health needs to be a list that contains only ints or floats.")
+
+        try:
+            self.user_health[0] > self.user_health[1]
+        except:
+            raise Exception("user_health needs 2 int or float elements.")
+        else:
+            if self.user_health[0] > self.user_health[1]:
+                self.user_health[0] = self.user_health[1]
+
 
 class Item:
     items = []

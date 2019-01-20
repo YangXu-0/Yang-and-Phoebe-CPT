@@ -12,7 +12,7 @@ movement = True
 text_list_index = 0 # Maybe fix
 ENEMY_ATTACK_BOUNDARIES = [430, 379, 210, 236]
 WORLD_BOUNDARIES = [0, 150, -891, -72]
-map_offset = [0, 0]
+map_offset = [-10, 0]
 counter = 0
 attack_functions = 0
 enemy_attack = None
@@ -24,7 +24,7 @@ ENEMY_DAMAGE = 4
 
 
 def setup():
-    global user, enemy, landscape, PLAYER_POS_WORLD, user_items, heart
+    global user, enemy, landscape, PLAYER_POS_WORLD, user_items, heart, keys_pressed
     size(640, 480)
     rectMode(CORNERS)
     frameRate(100)
@@ -37,8 +37,18 @@ def setup():
     enemy = Enemy()
     user_items = Item(items, item_values)
     user = User(USER_HEALTH)
+    tests = Tests()
+
+    print(movement_boundaries([100, 200], [430, 379, 210, 236], 10))
+
+    tests.test_user_attack_damage_calc()
+    tests.test_user_movement()
+    tests.test_movement_boundaries()
+    tests.test_enemy_patch()
 
     enemy.patch()  # Defined at beginning just to get program running
+    
+    keys_pressed = [False for key_code in range(256)]  # Reseting because tests change variables
 
 
 def draw():
@@ -58,7 +68,7 @@ def draw():
         image(landscape, map_offset[0], map_offset[1])
         draw_world_user(PLAYER_POS_WORLD[0], PLAYER_POS_WORLD[1], 13)
         if movement:
-            map_offset = user_movement(-1.5, map_offset, [38, 40, 37, 39])
+            map_offset = user_movement(-1.5, map_offset, [38, 40, 37, 39], keys_pressed)
             map_offset = movement_boundaries(map_offset, WORLD_BOUNDARIES, 10)
 
         if map_offset[0] <= enemy.enemy_attributes[4]:
@@ -145,7 +155,7 @@ def draw():
             time.sleep(0.15)
             slide = 6
         
-        player_pos = user_movement(1.5, player_pos, [38, 40, 37, 39])
+        player_pos = user_movement(1.5, player_pos, [38, 40, 37, 39], keys_pressed)
         player_pos = movement_boundaries(player_pos, ENEMY_ATTACK_BOUNDARIES, 10)
         draw_user(player_pos[0], player_pos[1])
         
@@ -306,14 +316,14 @@ def fight():  #problem
 
 def user_attack_damage_calc(start, end, hit_location):
     try:
-        damage = int(start - (abs(end - hit_location) / 10))
+        damage = int(abs(start - (abs(end - hit_location) / 10)))
     except:
-        raise Exception("All three arguments should be ints or floats")
+        raise Exception("All three arguments should be ints or floats and the start argument can't be 0.")
         
     return damage
 
 
-def user_movement(speed, position, keys_used):  #problem
+def user_movement(speed, position, keys_used, keys_pressed):  #problem
     if keys_pressed[keys_used[0]]:
         position[1] -= speed
     if keys_pressed[keys_used[1]]:
@@ -656,3 +666,39 @@ class Item:
     def __init__(self, item_list, health_values):
         self.items = item_list
         self.item_values = health_values
+
+
+class Tests():
+    def test_user_attack_damage_calc(self):
+        assert user_attack_damage_calc(1, 10, 5) == 1,  "Should return 1"
+        assert user_attack_damage_calc(3, 56, 5) == 2,  "Should return 2"
+        assert user_attack_damage_calc(34, 200, 123) == 27,  "Should return 27"
+        
+    def test_user_movement(self):
+        test_keys_pressed = keys_pressed
+        assert user_movement(1, [230, 480], [38, 40, 37, 39], test_keys_pressed) == [230, 480], "There should be no change"
+        test_keys_pressed[38] = True
+        assert user_movement(1, [230, 480], [38, 40, 37, 39], test_keys_pressed) == [230, 479], "y position should decrease by 1"
+        test_keys_pressed[38] = False
+        test_keys_pressed[40] = True
+        assert user_movement(3, [230, 480], [38, 40, 37, 39], test_keys_pressed) == [230, 483], "y position should increase by 3"
+        test_keys_pressed[40] = False
+        test_keys_pressed[37] = True
+        assert user_movement(2, [230, 480], [38, 40, 37, 39], test_keys_pressed) == [228, 480], "x position should decrease by 2"
+        test_keys_pressed[37] = False
+        test_keys_pressed[39] = True
+        assert user_movement(10, [230, 480], [38, 40, 37, 39], test_keys_pressed) == [240, 480], "x position should increase by 1"
+        
+    def test_movement_boundaries(self):
+        assert movement_boundaries([230, 480], [430, 379, 210, 236], 10) == [230, 369], "y position should change to 369"
+        assert movement_boundaries([230, 200], [430, 379, 210, 236], 10) == [230, 246], "y position should change to 24"
+        assert movement_boundaries([500, 480], [430, 379, 210, 236], 10) == [420, 369], "x position should change to 420"
+        assert movement_boundaries([100, 480], [430, 379, 210, 236], 10) == [220, 369], "x position should change to 220"
+
+    def test_enemy_patch(self):
+        test_class = Enemy()
+        test_class.patch()
+        assert enemy_dialogue == ["Patch blocks the way!", "You will be judged for your every action...", "Patch is annoyed", "Patch is taken aback, surprised.", "Patch smiles at you", "Patch laughs and his arrogant vibe dissolves into a friendly aura."], "Should be given patch's dialogue"
+        assert test_class.enemy_attributes == ["Patch", 1, 50, False, -88], "Should be given Patch stats and location"
+        assert test_class.act_path == ["Taunt", "Compliment", "Critcize", "Encourage", "131", ""], "Should be given actions user can do against Patch and solution to problem"
+        assert attack_functions == [enemy.patch_attack1, enemy.patch_attack1], "Should be set to patch_attack"

@@ -27,12 +27,15 @@ ratio = random.random()
 
 
 def setup():
-    global user, enemy, landscape, PLAYER_POS_WORLD, user_items, heart, player, keys_pressed, enemy_image
+    global user, enemy, landscape, PLAYER_POS_WORLD, user_items, heart, player, playerleft, playerright, playerback, keys_pressed, enemy_image
     size(640, 480)
     rectMode(CORNERS)
     frameRate(100)
 
     player = loadImage("player.png")
+    playerleft = loadImage("playerleft.png")
+    playerright = loadImage("playerright.png")
+    playerback = loadImage("playerback.png")
     heart = loadImage("heart.png")
     landscape = loadImage("map.png")
     
@@ -402,10 +405,19 @@ def draw_user(x_pos, y_pos):
     
 
 def draw_world_user(x_pos, y_pos,length):
-    global player
-    player.resize(0, 55)
-    image(player, x_pos, y_pos)
-
+    global player, playerleft, playerright, playerback
+    if keyCode == RIGHT:
+        playerright.resize(0, 55)
+        image(playerright, x_pos, y_pos)  
+    elif keyCode == LEFT:
+        playerleft.resize(0, 55)
+        image(playerleft, x_pos, y_pos)    
+    elif keyCode == UP:  
+        playerback.resize(0, 55)
+        image(playerback, x_pos, y_pos)  
+    else:  
+        player.resize(0, 55)
+        image(player, x_pos, y_pos)
 
 def print_options(min_range, max_range, options_list):
     try:
@@ -515,7 +527,7 @@ class Enemy:
         enemy_attack = enemy.attack
         enemy_image = loadImage("quack.png")
         self.boxsize = 33
-        self.speed = 2
+        self.speed = 2.5
         self.ratio_factors = [0, 10.85]
         self.vector_offsets = [- 110, 0, - 80, 30]        
         self.moving_direction = [1, 0]               
@@ -717,30 +729,60 @@ class Tests():
         test_enemy_class.patch()
         assert enemy_dialogue == ["Patch blocks the way!", "You will be judged for your every action...", "Patch is annoyed", "Patch is taken aback, surprised.", "Patch smiles at you", "Patch laughs and his arrogant vibe dissolves into a friendly aura."], "Should be given Patch's dialogue"
         assert test_enemy_class.act_choices == ["Taunt", "Compliment", "Critcize", "Encourage"], "Should be given actions user can do against Patch and solution to problem"
+        assert test_enemy_class.act_solution == ["131", "", False], "Should be given Patch solution"
+        assert test_enemy_class.boxsize == 67, "Should be given Patch's boxsize."
+        assert test_enemy_class.speed == 1, "Should be given Patch's obstacle speed."
+        assert test_enemy_class.ratio_factors == [0, 8.3], "Should be given Patch's ratio."
+        assert test_enemy_class.vector_offsets == [- 110, 0, - 50, 50], "Should be given Patch's offset."
+        assert test_enemy_class.moving_direction == [1, 0], "Should be given Patch's moving direction."
       
     def test_enemy_rosalind(self):
         test_enemy_class = Enemy()
         test_enemy_class.rosalind()
         assert enemy_dialogue == ["Rosalind stumbles in the way.", "Rosalind apologizes.", "Rosalind cries pitifully", "Rosalind cries out, still frightened", "Rosalind sniffs and wipes away her tears.", "Rosaline finally cracks a smile, she no longer wants to fight."], "Should be given Rosalind's dialogue"
         assert test_enemy_class.act_choices == ["Threaten", "Play", "Smile", "Hug"], "Should be given actions user can do against Rosalind and solution to problem"
-        
+        assert test_enemy_class.act_solution == ["231", "", False], "Should be given Rosalind solution"
+        assert test_enemy_class.boxsize == 130, "Should be given Rosalind's boxsize."
+        assert test_enemy_class.speed == 1, "Should be given Rosalind's obstacle speed."
+        assert test_enemy_class.ratio_factors == [15.4, 0], "Should be given Rosalind's ratio."
+        assert test_enemy_class.vector_offsets == [- 110, 0, - 50, 50], "Should be given Rosalind's offset."
+        assert test_enemy_class.moving_direction == [0, 1], "Should be given Rosalind's moving direction."
+      
     def test_enemy_quack(self):
         test_enemy_class = Enemy()
         test_enemy_class.patch()
         assert enemy_dialogue == ["Quack blocks the way!", "Quack gives you an evil grin", "Quack growls at you", "Quack laughs at your defiant attitude", "Quack finds you very amusing", "Quack no longer wants to fight."], "Should be given Quack's dialogue"
         assert test_enemy_class.act_choices == ["Taunt", "Ignore", "Joke", "Pet"], "Should be given actions user can do against Quack and solution to problem"
+        assert test_enemy_class.act_solution == ["1323", "", False], "Should be given Quack solution"
+        assert test_enemy_class.boxsize == 33, "Should be given Quack's boxsize."
+        assert test_enemy_class.speed == 2, "Should be given Quack's obstacle speed."
+        assert test_enemy_class.ratio_factors == [0, 10.85], "Should be given Quack's ratio."
+        assert test_enemy_class.vector_offsets == [- 110, 0, - 80, 30], "Should be given Quack's offset."
+        assert test_enemy_class.moving_direction == [1, 0], "Should be given Quack's moving direction."
       
     def test_enemy_desdemona(self):
         test_enemy_class = Enemy()
         test_enemy_class.patch()
         assert enemy_dialogue == ["Desdemona blocks the way!", "Desmonda files her nails", "You are ignored", "She glares at you, the insult hits a sore spot", "Desdemona's confidence goes down", "Desdemona is getting scared", "Desdemona cowers in fright."], "Should be given Desdemona's dialogue"
         assert test_enemy_class.act_choices == ["Threaten", "Cheer", "Insult", "Scare"], "Should be given actions user can do against Desdemona and solution to problem"
+        assert test_enemy_class.act_solution == ["2023", "". False], "Should be given Desdemona solution"
+        assert test_enemy_class.boxsize == 63, "Should be given Desdemona's boxsize."
+        assert test_enemy_class.speed == 2.5, "Should be given Desdemona's obstacle speed."
+        assert test_enemy_class.ratio_factors == [0, 8.3], "Should be given Desdemona's ratio."
+        assert test_enemy_class.vector_offsets == [- 110, 0, - 50, 50], "Should be given Desdemona's offset."
+        assert test_enemy_class.moving_direction == [1, 0], "Should be given Desdemona's moving direction."
       
     def test_enemy_gallo(self):
         test_enemy_class = Enemy()
         test_enemy_class.patch()
         assert enemy_dialogue == ["Gallo blocks the way!", "Gallo takes your phone", "Gallo transcends this realm of mortals. Your actions are meaningless."], "Should be given Gallo's dialogue"
         assert test_enemy_class.act_choices == ["Plead", "Reason", "Talk", "Compliment"], "Should be given actions user can do against Gallo and solution to problem"
+        assert test_enemy_class.act_solution == ["0", "", False], "Should be given Gallo solution"
+        assert test_enemy_class.boxsize == 164, "Should be given Gallo's boxsize."
+        assert test_enemy_class.speed == 2.5, "Should be given Gallo's obstacle speed."
+        assert test_enemy_class.ratio_factors == [19, 0], "Should be given Gallo's ratio."
+        assert test_enemy_class.vector_offsets == [- 110, 0, - 80, 80], "Should be given Gallo's offset."
+        assert test_enemy_class.moving_direction == [0, 1], "Should be given Gallo's moving direction."
       
     def test_enemy_act(self):
         test_enemy_class = Enemy()

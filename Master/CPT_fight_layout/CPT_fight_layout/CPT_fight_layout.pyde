@@ -482,7 +482,7 @@ class Enemy:
         enemy_attack = enemy.attack
         enemy_image = loadImage("Patch.png")
         self.boxsize = 67
-        self.speed = 2
+        self.speed = 1
         self.ratio_factors = [0, 8.3]
         self.vector_offsets = [- 110, 0, - 50, 50] 
         self.moving_direction = [1, 0]
@@ -496,7 +496,7 @@ class Enemy:
         enemy_attack = enemy.attack
         enemy_image = loadImage("rosalind.png")
         self.boxsize = 130
-        self.speed = 2
+        self.speed = 1
         self.ratio_factors = [15.4, 0]
         self.vector_offsets = [- 110, 0, - 50, 50]        
         self.moving_direction = [0, 1]        
@@ -510,7 +510,7 @@ class Enemy:
         enemy_attack = enemy.attack
         enemy_image = loadImage("quack.png")
         self.boxsize = 33
-        self.speed = 3
+        self.speed = 2
         self.ratio_factors = [0, 10.85]
         self.vector_offsets = [- 110, 0, - 80, 30]        
         self.moving_direction = [1, 0]               
@@ -524,7 +524,7 @@ class Enemy:
         enemy_attack = enemy.attack
         enemy_image = loadImage("desdemona.png")
         self.boxsize = 63
-        self.speed = 2.5
+        self.speed = 2
         self.ratio_factors = [0, 8.3]
         self.vector_offsets = [- 110, 0, - 50, 50]        
         self.moving_direction = [1, 0]        
@@ -538,7 +538,7 @@ class Enemy:
         enemy_attack = enemy.attack
         enemy_image = loadImage("gallo.png")
         self.boxsize = 164
-        self.speed = 2.5
+        self.speed = 2
         self.ratio_factors = [19, 0]
         self.vector_offsets = [- 110, 0, - 80, 80]        
         self.moving_direction = [0, 1]        
@@ -708,10 +708,37 @@ class Tests():
     def test_enemy_patch(self):
         test_enemy_class = Enemy()
         test_enemy_class.patch()
-        assert enemy_dialogue == ["Patch blocks the way!", "You will be judged for your every action...", "Patch is annoyed", "Patch is taken aback, surprised.", "Patch smiles at you", "Patch laughs and his arrogant vibe dissolves into a friendly aura."], "Should be given patch's dialogue"
+        assert enemy_dialogue == ["Patch blocks the way!", "You will be judged for your every action...", "Patch is annoyed", "Patch is taken aback, surprised.", "Patch smiles at you", "Patch laughs and his arrogant vibe dissolves into a friendly aura."], "Should be given Patch's dialogue"
         assert test_enemy_class.enemy_attributes == ["Patch", 1, 50, False, -88], "Should be given Patch stats and location"
         assert test_enemy_class.act_choices == ["Taunt", "Compliment", "Critcize", "Encourage"], "Should be given actions user can do against Patch and solution to problem"
-      #  assert attack_functions == [enemy.patch_attack], "Should be set to patch_attack"
+      
+    def test_enemy_rosalind(self):
+        test_enemy_class = Enemy()
+        test_enemy_class.rosalind()
+        assert enemy_dialogue == ["Rosalind stumbles in the way.", "Rosalind apologizes.", "Rosalind cries pitifully", "Rosalind cries out, still frightened", "Rosalind sniffs and wipes away her tears.", "Rosaline finally cracks a smile, she no longer wants to fight."], "Should be given Rosalind's dialogue"
+        assert test_enemy_class.enemy_attributes == ["Rosalind", 1, 40, False, -360], "Should be given Rosalind stats and location"
+        assert test_enemy_class.act_choices == ["Threaten", "Play", "Smile", "Hug"], "Should be given actions user can do against Rosalind and solution to problem"
+        
+    def test_enemy_quack(self):
+        test_enemy_class = Enemy()
+        test_enemy_class.patch()
+        assert enemy_dialogue == ["Quack blocks the way!", "Quack gives you an evil grin", "Quack growls at you", "Quack laughs at your defiant attitude", "Quack finds you very amusing", "Quack no longer wants to fight."], "Should be given Quack's dialogue"
+        assert test_enemy_class.enemy_attributes == ["Quack", 1, 40, False, -582], "Should be given Quack stats and location"
+        assert test_enemy_class.act_choices == ["Taunt", "Ignore", "Joke", "Pet"], "Should be given actions user can do against Quack and solution to problem"
+      
+    def test_enemy_desdemona(self):
+        test_enemy_class = Enemy()
+        test_enemy_class.patch()
+        assert enemy_dialogue == ["Desdemona blocks the way!", "Desmonda files her nails", "You are ignored", "She glares at you, the insult hits a sore spot", "Desdemona's confidence goes down", "Desdemona is getting scared", "Desdemona cowers in fright."], "Should be given Desdemona's dialogue"
+        assert test_enemy_class.enemy_attributes == ["Desdemona", 1, 40, False, -759], "Should be given Desdemona stats and location"
+        assert test_enemy_class.act_choices == ["Threaten", "Cheer", "Insult", "Scare"], "Should be given actions user can do against Desdemona and solution to problem"
+      
+    def test_enemy_gallo(self):
+        test_enemy_class = Enemy()
+        test_enemy_class.patch()
+        assert enemy_dialogue == ["Gallo blocks the way!", "Gallo takes your phone", "Gallo transcends this realm of mortals. Your actions are meaningless."], "Should be given Gallo's dialogue"
+        assert test_enemy_class.enemy_attributes == ["Gallo", 1, 300, False, -881], "Should be given Gallo stats and location"
+        assert test_enemy_class.act_choices == ["Plead", "Reason", "Talk", "Compliment"], "Should be given actions user can do against Gallo and solution to problem"
       
     def test_enemy_act(self):
         test_enemy_class = Enemy()

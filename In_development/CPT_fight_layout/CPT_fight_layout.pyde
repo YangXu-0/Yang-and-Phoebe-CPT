@@ -17,7 +17,7 @@ counter = 0
 attack_functions = 0
 enemy_attack = None
 user_color = "#FF0000"
-USER_HEALTH = [400, 20]
+USER_HEALTH = [20, 20]
 items = ["Burger", "Ice Cream", "Noodles", "Cake"]
 item_values = [12, 6, 2, 8]
 ENEMY_DAMAGE = 4
@@ -35,7 +35,7 @@ def setup():
     player = loadImage("player.png")
     heart = loadImage("heart.png")
     landscape = loadImage("map.png")
-    enemy_image = loadImage("Patch.png")
+    
 
     PLAYER_POS_WORLD = [width/2, height/2]
 
@@ -61,6 +61,7 @@ def draw():
     global offset, player_pos, movement, map_offset
     global counter, keys_pressed, enemy_attack, user_health, user_items
     global attack_counter, MAX_ATTACK_COUNT
+    global text_list_index
     background(0)
 
     if slide == 3 or slide == 4 or slide == 5 or slide == 6:
@@ -87,6 +88,7 @@ def draw():
             draw_textbox([11, 324], [629, 468])
             if text_list_index <= 0:
                 fill(255)
+                textSize(15)
                 text(enemy_dialogue[text_list_index], 25, 405)
             else:
                 slide += 1
@@ -181,10 +183,7 @@ def draw():
             user.user_health[0] -= ENEMY_DAMAGE
         
         enemy.immunity()
-        
-        if attack_counter >= MAX_ATTACK_COUNT:  #This needs to be changed to work for all attacks
-            enemy.reset()
-            slide = 3
+
 
     elif slide == 7:
         lose_screen()
@@ -198,6 +197,7 @@ def draw():
 
     elif slide == 9:
         counter += 1
+        text_list_index = 0
         
         if counter == 1:
             enemy.rosalind()
@@ -464,6 +464,7 @@ class Enemy:
         self.enemy_attributes = ["Patch", 1, 50, False, -88]
         self.act_path = ["Taunt", "Compliment", "Critcize", "Encourage", "131", ""]
         attack_functions = [enemy.patch_attack]
+        enemy_image = loadImage("Patch.png")
 
     def rosalind(self):
         global enemy_dialogue, attack_functions, enemy_image
@@ -498,8 +499,12 @@ class Enemy:
         enemy_image = loadImage("gallo.png")
 
     def patch_attack(self):
-        global offset, obstacle_pos, ratio, attack_counter
-        
+        global offset, obstacle_pos, ratio, attack_counter, MAX_ATTACK_COUNT, reset, slide
+                
+        if attack_counter >= MAX_ATTACK_COUNT:
+            enemy.reset()
+            slide = 3
+            
         if offset < 220:
             offset += 1
 
@@ -521,8 +526,12 @@ class Enemy:
             attack_counter += 1
         
     def quack_attack(self):
-        global offset, obstacle_pos, ratio, attack_counter
-        
+        global offset, obstacle_pos, ratio, attack_counter, MAX_ATTACK_COUNT, reset, slide
+                
+        if attack_counter >= MAX_ATTACK_COUNT:
+            enemy.reset()
+            slide = 3
+            
         if offset < 220:
             offset += 3
 
@@ -541,10 +550,15 @@ class Enemy:
         if offset >= 187:
             offset = 0
             ratio = random.randint(0, 10) 
+            attack_counter += 1
 
     def desdemona_attack(self):
-        global offset, obstacle_pos, ratio, attack_counter
-        
+        global offset, obstacle_pos, ratio, attack_counter, MAX_ATTACK_COUNT, reset, slide
+                
+        if attack_counter >= MAX_ATTACK_COUNT:
+            enemy.reset()
+            slide = 3
+            
         if offset < 220:
             offset += 2.5
 
@@ -563,10 +577,15 @@ class Enemy:
         if offset >= 157:
             offset = 0
             ratio = random.randint(0, 10) 
+            attack_counter += 1
         
     def rosalind_attack(self):
-        global offset, obstacle_pos, ratio, attack_counter
-        
+        global offset, obstacle_pos, ratio, attack_counter, MAX_ATTACK_COUNT, reset, slide
+                
+        if attack_counter >= MAX_ATTACK_COUNT:
+            enemy.reset()
+            slide = 3
+            
         if offset < 220:
             offset += 2
 
@@ -585,10 +604,15 @@ class Enemy:
         if offset >= 90:
             offset = 0
             ratio = random.randint(0, 10) 
+            attack_counter += 1
             
     def gallo_attack(self):
-        global offset, obstacle_pos, ratio, attack_counter
-        
+        global offset, obstacle_pos, ratio, attack_counter, MAX_ATTACK_COUNT, reset, slide
+                
+        if attack_counter >= MAX_ATTACK_COUNT:
+            enemy.reset()
+            slide = 3
+            
         if offset < 220:
             offset += 2.5
 
@@ -607,6 +631,7 @@ class Enemy:
         if offset >= 56:
             offset = 0
             ratio = random.randint(0, 10)
+            attack_counter += 1
             
     def act(self, act_index): #problem
         index = 0

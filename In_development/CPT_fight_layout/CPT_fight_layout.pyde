@@ -27,7 +27,7 @@ ratio = random.random()
 
 
 def setup():
-    global user, enemy, landscape, PLAYER_POS_WORLD, user_items, heart, player, keys_pressed
+    global user, enemy, landscape, PLAYER_POS_WORLD, user_items, heart, player, keys_pressed, enemy_image
     size(640, 480)
     rectMode(CORNERS)
     frameRate(100)
@@ -35,6 +35,7 @@ def setup():
     player = loadImage("player.png")
     heart = loadImage("heart.png")
     landscape = loadImage("map.png")
+    enemy_image = loadImage("Patch.png")
 
     PLAYER_POS_WORLD = [width/2, height/2]
 
@@ -64,6 +65,8 @@ def draw():
 
     if slide == 3 or slide == 4 or slide == 5 or slide == 6:
         battle_screen_display(user.user_health, enemy.enemy_attributes[1:3])
+        enemy_image.resize(0, 140)
+        image(enemy_image, width/2 - 45, height/2 - 170)
 
     if slide == 0:
         title_screen()
@@ -242,7 +245,7 @@ HP is lost for every obstacle you hit.""", width/2 - 298, height/2 - 205)
 
 
 def battle_screen_display(user_health, enemy_health):
-    global enemy_image
+    
     # Selection boxes
     stroke("#FF8503")
     fill(0)
@@ -272,10 +275,6 @@ def battle_screen_display(user_health, enemy_health):
         text("Enemy Health {}/{}".format(enemy_health[0], enemy_health[1]), width/2 - 120, height/2 + 165)
     except:
          raise Exception("Enemy's health should contain 2 integers in a list. The list contained '{}'".format(enemy_health))
-
-    enemy_image.resize(0,90)
-    image(enemy_image, width/2, height/2)
-
 
 def draw_fight_box(corner1, corner2):
     fill(0)
@@ -465,7 +464,6 @@ class Enemy:
         self.enemy_attributes = ["Patch", 1, 50, False, -88]
         self.act_path = ["Taunt", "Compliment", "Critcize", "Encourage", "131", ""]
         attack_functions = [enemy.patch_attack]
-        enemy_image = loadImage("Patch.png")
 
     def rosalind(self):
         global enemy_dialogue, attack_functions, enemy_image

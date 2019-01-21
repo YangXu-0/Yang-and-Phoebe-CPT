@@ -493,7 +493,7 @@ class Enemy:
     def rosalind(self):
         global enemy_dialogue, attack_functions, enemy_image
         enemy_dialogue = ["Rosalind stumbles in the way.", "Rosalind apologizes.", "Rosalind cries pitifully", "Rosalind cries out, still frightened", "Rosalind sniffs and wipes away her tears.", "Rosaline finally cracks a smile, she no longer wants to fight."]
-        self.enemy_health = [1, 40]
+        self.enemy_health = [1, 70]
         self.enemy_location = -360
         self.act_choices = ["Threaten", "Play", "Smile", "Hug"]
         self.act_solution = ["231", "", False]
@@ -508,7 +508,7 @@ class Enemy:
     def quack(self):
         global enemy_dialogue, attack_functions, enemy_image
         enemy_dialogue = ["Quack blocks the way!", "Quack gives you an evil grin", "Quack growls at you", "Quack laughs at your defiant attitude", "Quack finds you very amusing", "Quack no longer wants to fight."]
-        self.enemy_health = [1, 40]
+        self.enemy_health = [1, 80]
         self.enemy_location = -582
         self.act_choices = ["Taunt", "Ignore", "Joke", "Pet"]
         self.act_solution = ["1323", "", False]
@@ -523,7 +523,7 @@ class Enemy:
     def desdemona(self):
         global enemy_dialogue, attack_functions, enemy_image
         enemy_dialogue = ["Desdemona blocks the way!", "Desmonda files her nails", "You are ignored", "She glares at you, the insult hits a sore spot", "Desdemona's confidence goes down", "Desdemona is getting scared", "Desdemona cowers in fright."]
-        self.enemy_health = [1, 40]
+        self.enemy_health = [1, 100]
         self.enemy_location = -759
         self.act_choices = ["Threaten", "Cheer", "Insult", "Scare"]
         self.act_solution = ["2023", "", False]

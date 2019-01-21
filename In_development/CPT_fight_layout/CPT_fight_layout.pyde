@@ -27,18 +27,12 @@ ratio = random.random()
 
 
 def setup():
-    global user, enemy, landscape, PLAYER_POS_WORLD, user_items, heart, player, patch, quack, quackfriend, desdemona, rosalind, gallo, keys_pressed
+    global user, enemy, landscape, PLAYER_POS_WORLD, user_items, heart, player, keys_pressed
     size(640, 480)
     rectMode(CORNERS)
     frameRate(100)
 
     player = loadImage("player.png")
-    patch = loadImage("Patch.png")
-    quack = loadImage("quack.png")
-    quackfriend = loadImage("quackfriend.png")
-    desdemona = loadImage("desdemona.png")
-    rosalind = loadImage("rosalind.png")
-    gallo = loadImage("gallo.png")
     heart = loadImage("heart.png")
     landscape = loadImage("map.png")
 
@@ -65,6 +59,7 @@ def draw():
     global slide, user_option_selection_counter, option_selection, user, enemy
     global offset, player_pos, movement, map_offset
     global counter, keys_pressed, enemy_attack, user_health, user_items
+    global attack_counter, MAX_ATTACK_COUNT
     background(0)
 
     if slide == 3 or slide == 4 or slide == 5 or slide == 6:
@@ -184,7 +179,7 @@ def draw():
         
         enemy.immunity()
         
-        if offset >= 220:  #This needs to be changed to work for all attacks
+        if attack_counter >= MAX_ATTACK_COUNT:  #This needs to be changed to work for all attacks
             enemy.reset()
             slide = 3
 
@@ -247,7 +242,7 @@ HP is lost for every obstacle you hit.""", width/2 - 298, height/2 - 205)
 
 
 def battle_screen_display(user_health, enemy_health):
-    global patch, rosalind, quack, quackfriend, desdemona, gallo, counter
+    global enemy_image
     # Selection boxes
     stroke("#FF8503")
     fill(0)
@@ -278,23 +273,9 @@ def battle_screen_display(user_health, enemy_health):
     except:
          raise Exception("Enemy's health should contain 2 integers in a list. The list contained '{}'".format(enemy_health))
 
-    if counter == 0:
-        patch.resize(0,90)
-        image(patch, width/2, height/2)
-    elif counter == 1:
-        rosalind.resize(0,90)
-        image(rosalind, width/2, height/2)
-    elif counter == 2:
-        quack.resize(0,90)
-        image(quack, width/2, height/2)
-        quackfriend.resize(0,90)
-        image(quackfriend, width/2 - 50, height/2)
-    elif counter == 3:
-        desdemona.resize(0,90)
-        image(desdemona, width/2, height/2)
-    elif counter == 4:
-        gallo.resize(0,90)
-        image(gallo, width/2, height/2)
+    enemy_image.resize(0,90)
+    image(enemy_image, width/2, height/2)
+
 
 def draw_fight_box(corner1, corner2):
     fill(0)
@@ -479,46 +460,47 @@ class Enemy:
     IMMUNE_TIME = 70  # Frames
 
     def patch(self):
-        global enemy_dialogue, attack_functions
+        global enemy_dialogue, attack_functions, enemy_image
         enemy_dialogue = ["Patch blocks the way!", "You will be judged for your every action...", "Patch is annoyed", "Patch is taken aback, surprised.", "Patch smiles at you", "Patch laughs and his arrogant vibe dissolves into a friendly aura."]
         self.enemy_attributes = ["Patch", 1, 50, False, -88]
         self.act_path = ["Taunt", "Compliment", "Critcize", "Encourage", "131", ""]
         attack_functions = [enemy.patch_attack]
+        enemy_image = loadImage("Patch.png")
 
     def rosalind(self):
-        global enemy_dialogue
-        enemy_dialogue = ["Rosalind stumbles in the way.", "Rosalind apologizes.", "Rosalind cries pitifully", "Rosalind cries out, beggin for your sympathy", "Rosalind sniffs and wipes away her tears.", "Rosaline finally cracks a smile, she no longer wants to fight."]
+        global enemy_dialogue, attack_functions, enemy_image
+        enemy_dialogue = ["Rosalind stumbles in the way.", "Rosalind apologizes.", "Rosalind cries pitifully", "Rosalind cries out, still frightened", "Rosalind sniffs and wipes away her tears.", "Rosaline finally cracks a smile, she no longer wants to fight."]
         self.enemy_attributes = ["Rosalind", 30, 40, False, -360]  # Still need to change stats and location
         self.act_path = ["Threaten", "Play", "Smile", "Hug", "231", ""]
         attack_functions = [enemy.rosalind_attack]
+        enemy_image = loadImage("rosalind.png")
 
     def quack(self):
-        global enemy_dialogue
-        enemy_dialogue = ["Quack blocks the way!", "Quack brings a friend", "Woodward growls at you", "Quack watches you pet his little friend", "Both Quack and Woordward find you very amusing", "Quack and Woodward no longer want to fight."]
+        global enemy_dialogue, attack_functions, enemy_image
+        enemy_dialogue = ["Quack blocks the way!", "Quack gives you an evil grin", "Quack growls at you", "Quack laughs at your defiant attitude", "Quack finds you very amusing", "Quack no longer wants to fight."]
         self.enemy_attributes = ["Quack", 30, 40, False, -582]
         self.act_path = ["Taunt", "Ignore", "Joke", "Pet", "1323", ""]
         attack_functions = [enemy.quack_attack]
+        enemy_image = loadImage("quack.png")
 
     def desdemona(self):
-        global enemy_dialogue
+        global enemy_dialogue, attack_functions, enemy_image
         enemy_dialogue = ["Desdemona blocks the way!", "Desmonda files her nails", "You are ignored", "She glares at you, the insult hits a sore spot", "Desdemona's confidence goes down", "Desdemona is getting scared", "Desdemona cowers in fright."]
         self.enemy_attributes = ["Desdemona", 30, 40, False, -759]
         self.act_path = ["Threaten", "Cheer", "Insult", "Scare", "2023", ""]
         attack_functions = [enemy.desdemona_attack]
+        enemy_image = loadImage("desdemona.png")
 
     def gallo(self):
-        global enemy_dialogue
+        global enemy_dialogue, attack_functions, enemy_image
         enemy_dialogue = ["Gallo blocks the way!", "Gallo takes your phone", "Gallo transcends this realm of mortals. Your actions are meaningless."]
         self.enemy_attributes = ["Gallo", 300, 300, False, -881]
         self.act_path = ["Plead", "Reason", "Talk", "Compliment", "0", ""]
         attack_functions = [enemy.gallo_attack]
+        enemy_image = loadImage("gallo.png")
 
     def patch_attack(self):
-        global offset, obstacle_pos, ratio, attack_counter, MAX_ATTACK_COUNT, slide
-        
-        if attack_counter >= MAX_ATTACK_COUNT:
-            enemy.reset()
-            slide = 3
+        global offset, obstacle_pos, ratio, attack_counter
         
         if offset < 220:
             offset += 1
@@ -541,11 +523,7 @@ class Enemy:
             attack_counter += 1
         
     def quack_attack(self):
-        global offset, obstacle_pos, ratio, attack_counter, MAX_ATTACK_COUNT, slide
-       
-        if attack_counter >= MAX_ATTACK_COUNT:
-            enemy.reset()
-            slide = 3
+        global offset, obstacle_pos, ratio, attack_counter
         
         if offset < 220:
             offset += 3
@@ -567,11 +545,7 @@ class Enemy:
             ratio = random.randint(0, 10) 
 
     def desdemona_attack(self):
-        global offset, obstacle_pos, ratio, attack_counter, MAX_ATTACK_COUNT, slide
-        
-        if attack_counter >= MAX_ATTACK_COUNT:
-            enemy.reset()
-            slide = 3
+        global offset, obstacle_pos, ratio, attack_counter
         
         if offset < 220:
             offset += 2.5
@@ -593,11 +567,7 @@ class Enemy:
             ratio = random.randint(0, 10) 
         
     def rosalind_attack(self):
-        global offset, obstacle_pos, ratio, attack_counter, MAX_ATTACK_COUNT, slide
-        
-        if attack_counter >= MAX_ATTACK_COUNT:
-            enemy.reset()
-            slide = 3
+        global offset, obstacle_pos, ratio, attack_counter
         
         if offset < 220:
             offset += 2
@@ -619,11 +589,7 @@ class Enemy:
             ratio = random.randint(0, 10) 
             
     def gallo_attack(self):
-        global offset, obstacle_pos, ratio, attack_counter, MAX_ATTACK_COUNT, slide
-        
-        if attack_counter >= MAX_ATTACK_COUNT:
-            enemy.reset()
-            slide = 3
+        global offset, obstacle_pos, ratio, attack_counter
         
         if offset < 220:
             offset += 2.5

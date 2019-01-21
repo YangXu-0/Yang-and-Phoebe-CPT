@@ -10,9 +10,9 @@ keys_pressed = [False for key_code in range(256)]
 enemy_dialogue = []
 movement = True
 text_list_index = 0 # Maybe fix
-ENEMY_ATTACK_BOUNDARIES = [425, 375, 200, 229]
+ENEMY_ATTACK_BOUNDARIES = [427, 375, 200, 227]
 WORLD_BOUNDARIES = [0, 150, -891, -72]
-map_offset = [-10, 0]
+map_offset = [-10, 20]
 counter = 0
 
 enemy_attack = None
@@ -67,7 +67,7 @@ def draw():
     background(0)
     
     if slide == 3 or slide == 4 or slide == 5 or slide == 6:
-        battle_screen_display(user.user_health, enemy.enemy_attributes[1:3])
+        battle_screen_display(user.user_health, enemy.enemy_health)
         enemy_image.resize(0, 140)
         image(enemy_image, width/2 - 45, height/2 - 170)
 
@@ -85,20 +85,20 @@ def draw():
             map_offset = user_movement(-1.5, map_offset, [38, 40, 37, 39], keys_pressed)
             map_offset = movement_boundaries(map_offset, WORLD_BOUNDARIES, 10)
 
-        if map_offset[0] <= enemy.enemy_attributes[4]:
+        if map_offset[0] <= enemy.enemy_location:
             movement = False
             draw_textbox([11, 324], [629, 468])
             if text_list_index <= 0:
                 fill(255)
-                textSize(15)
-                text(enemy_dialogue[text_list_index], 25, 405)
+                textSize(20)
+                text(enemy_dialogue[text_list_index], 30, 405)
             else:
                 slide += 1
 
     elif slide == 3:
         draw_textbox([width/2 - 308, height/2 - 4], [width/2 + 308, height/2 + 139])        
 
-        user_choice_pos = [37 + (157 * user_option_selection_counter), 442]
+        user_choice_pos = [32 + (157 * user_option_selection_counter), 439]
         draw_user(user_choice_pos[0], user_choice_pos[1])
         fill(255)
         textSize(20)
@@ -115,7 +115,7 @@ def draw():
                 slide += 1
         elif user_option_selection_counter == 1:
             print_options(0, 4, enemy.act_choices)
-            user_choice_pos = [56 + (151 * option_selection), 320] #problem
+            user_choice_pos = [40 + (151 * option_selection), 309] #problem
             draw_user(user_choice_pos[0], user_choice_pos[1])
         elif user_option_selection_counter == 2:
             print_options(0, 4, user_items.items)
@@ -126,7 +126,7 @@ def draw():
             user_choice_pos = [56 + (151 * option_selection), 320]
             draw_user(user_choice_pos[0], user_choice_pos[1])
         else:   
-            if enemy.enemy_attributes[3]:
+            if enemy.act_solution[2]:
                 time.sleep(0.15)
                 slide = 8
             else:
@@ -136,11 +136,11 @@ def draw():
         draw_textbox([width/2 - 308, height/2 - 4], [width/2 + 308, height/2 + 139])
 
         if user_option_selection_counter == 0:
-            if enemy.enemy_attributes[1] - user_attack_damage_calc(24.5, 245, offset) < 0:
-                enemy.enemy_attributes[1] = 0
+            if enemy.enemy_health[0] - user_attack_damage_calc(24.5, 245, offset) < 0:
+                enemy.enemy_health[0] = 0
             else:
-                enemy.enemy_attributes[1] -= user_attack_damage_calc(24.5, 245, offset)
-            if enemy.enemy_attributes[1] <= 0:
+                enemy.enemy_health[0] -= user_attack_damage_calc(24.5, 245, offset)
+            if enemy.enemy_health[0] <= 0:
                 time.sleep(1)
                 slide = 8
             else:
@@ -151,7 +151,7 @@ def draw():
             
             if text_index == len(enemy_dialogue) - 1:
                 text("{}".format(enemy_dialogue[text_index]), 60, 320)
-                enemy.enemy_attributes[3] = True
+                enemy.act_solution[2] = True
             else:
                 text(enemy_dialogue[text_index + 2], 60, 320)
 
@@ -164,7 +164,7 @@ def draw():
 
     elif slide == 6:
         draw_fight_box([width/2 - 110, height/2 - 4], [width/2 + 110, height/2 + 139])    
-        enemy_attack()
+        #enemy_attack()
         if user.user_health[0] <= 0:
             time.sleep(0.15)
             slide = 7
@@ -227,13 +227,13 @@ def tutorial_screen():
     fill(255)
     textSize(15)
     text("""Welcome to Blundertale! 
-1. Use the Arrow Keys to explore the map.
-2. Use the Arrow Keys to navigate between options and "z" to select the desired 
-option. Use "x" to go back.
+1. Use the Arrow Keys to move and find all the enemies.
+2. When an enemy is encountered, use "z" to select the desired options. 
+Use "x" to go back.
 3. If you choose "Act", you have 4 options. If you choose the options in the 
-correct sequence, you can talk the enemy into calming down, then use the "Mercy" 
+correct sequence, you can talk the enemy into calming down, then use the "Spare" 
 option to avoid a fight.
-**"Mercy" is useless without first completing "Act".**
+**"Spare" is useless without first completing "Act".**
 4. If you choose to use an item, you can eat food to regain HP. Use wisely, once 
 you use one, it's gone!
 5. Your HP is displayed above the options, along with the opponent's HP. If you 
@@ -249,6 +249,7 @@ HP is lost for every obstacle you hit.""", width/2 - 298, height/2 - 205)
 def battle_screen_display(user_health, enemy_health):
     # Selection boxes
     stroke("#FF8503")
+    strokeWeight(5)
     fill(0)
     rect(width/2 - 308, height/2 + 177, width/2 - 163, height/2 + 227)
     rect(width/2 - 151, height/2 + 177, width/2 - 6, height/2 + 227)
@@ -258,10 +259,10 @@ def battle_screen_display(user_health, enemy_health):
     # Selection text
     fill("#FF8503")
     textSize(30)
-    text("Fight", width/2 - 260, height/2 + 190, width/2 - 163, height/2 + 235)
-    text("Act", width/2 - 103, height/2 + 190, width/2 - 6, height/2 + 235)
-    text("Items", width/2 + 54, height/2 + 190, width/2 + 151, height/2 + 235)
-    text("Spare", width/2 + 211, height/2 + 190, width/2 + 308, height/2 + 235)
+    text("Fight", width/2 - 260, height/2 + 185, width/2 - 163, height/2 + 235)
+    text("Act", width/2 - 103, height/2 + 185, width/2 - 6, height/2 + 235)
+    text("Items", width/2 + 54, height/2 + 185, width/2 + 151, height/2 + 235)
+    text("Spare", width/2 + 211, height/2 + 185, width/2 + 308, height/2 + 235)
 
     # Health fractions
     fill(255)
@@ -459,13 +460,14 @@ def mousePressed():
 
 
 class Enemy:
-    enemy_attributes = []
     act_choices = []
     act_solution = []
     obstacle_pos = []
     collision_immune = False
     immune_time_start = 0
     IMMUNE_TIME = 70  # Frames
+    enemy_health = []
+    enemy_location = 0
 
     boxsize = 0
     speed = 0
@@ -476,9 +478,10 @@ class Enemy:
     def patch(self):
         global enemy_dialogue, enemy_attack, enemy_image
         enemy_dialogue = ["Patch blocks the way!", "You will be judged for your every action...", "Patch is annoyed", "Patch is taken aback, surprised.", "Patch smiles at you", "Patch laughs and his arrogant vibe dissolves into a friendly aura."]
-        self.enemy_attributes = ["Patch", 1, 50, False, -88]
+        self.enemy_health = [1, 50]
+        self.enemy_location = -88
         self.act_choices = ["Taunt", "Compliment", "Critcize", "Encourage"]
-        self.act_solution = ["131", ""]
+        self.act_solution = ["131", "", False]
         enemy_attack = enemy.attack
         enemy_image = loadImage("Patch.png")
         self.boxsize = 67
@@ -490,9 +493,10 @@ class Enemy:
     def rosalind(self):
         global enemy_dialogue, attack_functions, enemy_image
         enemy_dialogue = ["Rosalind stumbles in the way.", "Rosalind apologizes.", "Rosalind cries pitifully", "Rosalind cries out, still frightened", "Rosalind sniffs and wipes away her tears.", "Rosaline finally cracks a smile, she no longer wants to fight."]
-        self.enemy_attributes = ["Rosalind", 1, 40, False, -360]  # Still need to change stats and location
+        self.enemy_health = [1, 40]
+        self.enemy_location = -360
         self.act_choices = ["Threaten", "Play", "Smile", "Hug"]
-        self.act_solution = ["231", ""]
+        self.act_solution = ["231", "", False]
         enemy_attack = enemy.attack
         enemy_image = loadImage("rosalind.png")
         self.boxsize = 130
@@ -504,9 +508,10 @@ class Enemy:
     def quack(self):
         global enemy_dialogue, attack_functions, enemy_image
         enemy_dialogue = ["Quack blocks the way!", "Quack gives you an evil grin", "Quack growls at you", "Quack laughs at your defiant attitude", "Quack finds you very amusing", "Quack no longer wants to fight."]
-        self.enemy_attributes = ["Quack", 1, 40, False, -582]
+        self.enemy_health = [1, 40]
+        self.enemy_location = -582
         self.act_choices = ["Taunt", "Ignore", "Joke", "Pet"]
-        self.act_solution = ["1323", ""]
+        self.act_solution = ["1323", "", False]
         enemy_attack = enemy.attack
         enemy_image = loadImage("quack.png")
         self.boxsize = 33
@@ -518,9 +523,10 @@ class Enemy:
     def desdemona(self):
         global enemy_dialogue, attack_functions, enemy_image
         enemy_dialogue = ["Desdemona blocks the way!", "Desmonda files her nails", "You are ignored", "She glares at you, the insult hits a sore spot", "Desdemona's confidence goes down", "Desdemona is getting scared", "Desdemona cowers in fright."]
-        self.enemy_attributes = ["Desdemona", 1, 40, False, -759]
+        self.enemy_health = [1, 40]
+        self.enemy_location = -759
         self.act_choices = ["Threaten", "Cheer", "Insult", "Scare"]
-        self.act_solution = ["2023", ""]
+        self.act_solution = ["2023", "", False]
         enemy_attack = enemy.attack
         enemy_image = loadImage("desdemona.png")
         self.boxsize = 63
@@ -532,9 +538,10 @@ class Enemy:
     def gallo(self):
         global enemy_dialogue, attack_functions, enemy_image
         enemy_dialogue = ["Gallo blocks the way!", "Gallo takes your phone", "Gallo transcends this realm of mortals. Your actions are meaningless."]
-        self.enemy_attributes = ["Gallo", 1, 300, False, -881]
+        self.enemy_health = [1, 300]
+        self.enemy_location = -881
         self.act_choices = ["Plead", "Reason", "Talk", "Compliment"]
-        self.act_solution = ["0", ""]
+        self.act_solution = ["0", "", False]
         enemy_attack = enemy.attack
         enemy_image = loadImage("gallo.png")
         self.boxsize = 164
@@ -544,7 +551,7 @@ class Enemy:
         self.moving_direction = [0, 1]        
 
     def attack(self):
-        global offset, obstacle_pos, ratio, attack_counter, MAX_ATTACK_COUNT, reset, slide
+        global offset, ratio, attack_counter, MAX_ATTACK_COUNT, reset, slide
         if attack_counter >= MAX_ATTACK_COUNT:
             enemy.reset()
             slide = 3
@@ -709,35 +716,30 @@ class Tests():
         test_enemy_class = Enemy()
         test_enemy_class.patch()
         assert enemy_dialogue == ["Patch blocks the way!", "You will be judged for your every action...", "Patch is annoyed", "Patch is taken aback, surprised.", "Patch smiles at you", "Patch laughs and his arrogant vibe dissolves into a friendly aura."], "Should be given Patch's dialogue"
-        assert test_enemy_class.enemy_attributes == ["Patch", 1, 50, False, -88], "Should be given Patch stats and location"
         assert test_enemy_class.act_choices == ["Taunt", "Compliment", "Critcize", "Encourage"], "Should be given actions user can do against Patch and solution to problem"
       
     def test_enemy_rosalind(self):
         test_enemy_class = Enemy()
         test_enemy_class.rosalind()
         assert enemy_dialogue == ["Rosalind stumbles in the way.", "Rosalind apologizes.", "Rosalind cries pitifully", "Rosalind cries out, still frightened", "Rosalind sniffs and wipes away her tears.", "Rosaline finally cracks a smile, she no longer wants to fight."], "Should be given Rosalind's dialogue"
-        assert test_enemy_class.enemy_attributes == ["Rosalind", 1, 40, False, -360], "Should be given Rosalind stats and location"
         assert test_enemy_class.act_choices == ["Threaten", "Play", "Smile", "Hug"], "Should be given actions user can do against Rosalind and solution to problem"
         
     def test_enemy_quack(self):
         test_enemy_class = Enemy()
         test_enemy_class.patch()
         assert enemy_dialogue == ["Quack blocks the way!", "Quack gives you an evil grin", "Quack growls at you", "Quack laughs at your defiant attitude", "Quack finds you very amusing", "Quack no longer wants to fight."], "Should be given Quack's dialogue"
-        assert test_enemy_class.enemy_attributes == ["Quack", 1, 40, False, -582], "Should be given Quack stats and location"
         assert test_enemy_class.act_choices == ["Taunt", "Ignore", "Joke", "Pet"], "Should be given actions user can do against Quack and solution to problem"
       
     def test_enemy_desdemona(self):
         test_enemy_class = Enemy()
         test_enemy_class.patch()
         assert enemy_dialogue == ["Desdemona blocks the way!", "Desmonda files her nails", "You are ignored", "She glares at you, the insult hits a sore spot", "Desdemona's confidence goes down", "Desdemona is getting scared", "Desdemona cowers in fright."], "Should be given Desdemona's dialogue"
-        assert test_enemy_class.enemy_attributes == ["Desdemona", 1, 40, False, -759], "Should be given Desdemona stats and location"
         assert test_enemy_class.act_choices == ["Threaten", "Cheer", "Insult", "Scare"], "Should be given actions user can do against Desdemona and solution to problem"
       
     def test_enemy_gallo(self):
         test_enemy_class = Enemy()
         test_enemy_class.patch()
         assert enemy_dialogue == ["Gallo blocks the way!", "Gallo takes your phone", "Gallo transcends this realm of mortals. Your actions are meaningless."], "Should be given Gallo's dialogue"
-        assert test_enemy_class.enemy_attributes == ["Gallo", 1, 300, False, -881], "Should be given Gallo stats and location"
         assert test_enemy_class.act_choices == ["Plead", "Reason", "Talk", "Compliment"], "Should be given actions user can do against Gallo and solution to problem"
       
     def test_enemy_act(self):

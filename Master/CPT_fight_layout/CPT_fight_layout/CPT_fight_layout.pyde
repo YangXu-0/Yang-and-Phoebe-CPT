@@ -14,10 +14,10 @@ ENEMY_ATTACK_BOUNDARIES = [430, 379, 210, 236]
 WORLD_BOUNDARIES = [0, 150, -891, -72]
 map_offset = [-10, 0]
 counter = 0
-attack_functions = 0
+
 enemy_attack = None
 user_color = "#FF0000"
-USER_HEALTH = [400, 20]
+USER_HEALTH = [20, 20]
 items = ["Burger", "Ice Cream", "Noodles", "Cake"]
 item_values = [12, 6, 2, 8]
 ENEMY_DAMAGE = 4
@@ -27,20 +27,15 @@ ratio = random.random()
 
 
 def setup():
-    global user, enemy, landscape, PLAYER_POS_WORLD, user_items, heart, player, patch, quack, quackfriend, desdemona, rosalind, gallo, keys_pressed
+    global user, enemy, landscape, PLAYER_POS_WORLD, user_items, heart, player, keys_pressed, enemy_image
     size(640, 480)
     rectMode(CORNERS)
     frameRate(100)
 
     player = loadImage("player.png")
-    patch = loadImage("Patch.png")
-    quack = loadImage("quack.png")
-    quackfriend = loadImage("quackfriend.png")
-    desdemona = loadImage("desdemona.png")
-    rosalind = loadImage("rosalind.png")
-    gallo = loadImage("gallo.png")
     heart = loadImage("heart.png")
     landscape = loadImage("map.png")
+    
 
     PLAYER_POS_WORLD = [width/2, height/2]
 
@@ -65,10 +60,14 @@ def draw():
     global slide, user_option_selection_counter, option_selection, user, enemy
     global offset, player_pos, movement, map_offset
     global counter, keys_pressed, enemy_attack, user_health, user_items
+    global attack_counter, MAX_ATTACK_COUNT
+    global text_list_index
     background(0)
-
+    
     if slide == 3 or slide == 4 or slide == 5 or slide == 6:
         battle_screen_display(user.user_health, enemy.enemy_attributes[1:3])
+        enemy_image.resize(0, 140)
+        image(enemy_image, width/2 - 45, height/2 - 170)
 
     if slide == 0:
         title_screen()
@@ -89,15 +88,13 @@ def draw():
             draw_textbox([11, 324], [629, 468])
             if text_list_index <= 0:
                 fill(255)
+                textSize(15)
                 text(enemy_dialogue[text_list_index], 25, 405)
             else:
                 slide += 1
 
     elif slide == 3:
-        draw_textbox([width/2 - 308, height/2 - 4], [width/2 + 308, height/2 + 139])
-        
-        # Needs to be defined at the beginning of turn
-        enemy_attack = random.choice(attack_functions)
+        draw_textbox([width/2 - 308, height/2 - 4], [width/2 + 308, height/2 + 139])        
 
         user_choice_pos = [37 + (157 * user_option_selection_counter), 442]
         draw_user(user_choice_pos[0], user_choice_pos[1])
@@ -107,9 +104,7 @@ def draw():
 
     elif slide == 4:
         draw_textbox([width/2 - 308, height/2 - 4], [width/2 + 308, height/2 + 139])
-        
         fill(255)
-
         if user_option_selection_counter == 0:
             fight()
         elif user_option_selection_counter == 1:
@@ -161,18 +156,15 @@ def draw():
             slide += 1
 
     elif slide == 6:
-        draw_fight_box([width/2 - 110, height/2 - 4], [width/2 + 110, height/2 + 139])
-
+        draw_fight_box([width/2 - 110, height/2 - 4], [width/2 + 110, height/2 + 139])    
         enemy_attack()
         if user.user_health[0] <= 0:
             time.sleep(0.15)
             slide = 7
-        
         player_pos = user_movement(1.5, player_pos, [38, 40, 37, 39], keys_pressed)
         player_pos = movement_boundaries(player_pos, ENEMY_ATTACK_BOUNDARIES, 10)
         draw_user(player_pos[0], player_pos[1])
-        
-        if enemy.collision_immune == True:
+        if enemy.collision_immune== True:
             tint(165, 35, 35)
         else:
             noTint()
@@ -183,10 +175,7 @@ def draw():
             user.user_health[0] -= ENEMY_DAMAGE
         
         enemy.immunity()
-        
-        if offset >= 220:  #This needs to be changed to work for all attacks
-            enemy.reset()
-            slide = 3
+
 
     elif slide == 7:
         lose_screen()
@@ -200,6 +189,7 @@ def draw():
 
     elif slide == 9:
         counter += 1
+        text_list_index = 0
         
         if counter == 1:
             enemy.rosalind()
@@ -209,6 +199,9 @@ def draw():
             enemy.desdemona()
         elif counter == 4:
             enemy.gallo()
+        else :
+            enemy.patch()
+        
 
         offset = 0
         keys_pressed = [False for key_code in range(256)]
@@ -247,6 +240,7 @@ HP is lost for every obstacle you hit.""", width/2 - 298, height/2 - 205)
 
 
 def battle_screen_display(user_health, enemy_health):
+    
     # Selection boxes
     stroke("#FF8503")
     fill(0)
@@ -276,7 +270,6 @@ def battle_screen_display(user_health, enemy_health):
         text("Enemy Health {}/{}".format(enemy_health[0], enemy_health[1]), width/2 - 120, height/2 + 165)
     except:
          raise Exception("Enemy's health should contain 2 integers in a list. The list contained '{}'".format(enemy_health))
-
 
 def draw_fight_box(corner1, corner2):
     fill(0)
@@ -408,24 +401,21 @@ def print_options(min_range, max_range, options_list):
 
 def keyPressed():
     global keys_pressed
-
     if slide == 6 or slide == 2:
         keys_pressed[keyCode] = True
 
 
 def keyReleased(): #problem
     global user_option_selection_counter, slide, option_selection, keys_pressed, text_list_index
-
+    # print("keyreleased = " + str(key))
     if key == "z":
         if slide in [2, 8] and movement is False:
-            text_list_index += 1
-            
+            text_list_index += 1            
         elif slide in [0, 1, 3, 4, 5, 8]:
             time.sleep(0.15)
             slide += 1
     elif key == "x" and slide in [3] and user_option_selection_counter not in [0, 3]:
         slide -= 1
-        
 
     if slide == 3:
         # Changes option selection counter
@@ -460,55 +450,94 @@ class Enemy:
     immune_time_elapsed = 0
     IMMUNE_TIME = 70  # Frames
 
+    boxsize = 67
+    speed = 1
+    ratio_factors = [0, 0]
+    vector_offsets = [0,0,0,0]
+    moving_direction = [1, 0]
+
     def patch(self):
-        global enemy_dialogue, attack_functions
+        global enemy_dialogue, enemy_attack, enemy_image
         enemy_dialogue = ["Patch blocks the way!", "You will be judged for your every action...", "Patch is annoyed", "Patch is taken aback, surprised.", "Patch smiles at you", "Patch laughs and his arrogant vibe dissolves into a friendly aura."]
         self.enemy_attributes = ["Patch", 1, 50, False, -88]
         self.act_path = ["Taunt", "Compliment", "Critcize", "Encourage", "131", ""]
-        attack_functions = [enemy.patch_attack]
+        enemy_attack = enemy.attack
+        enemy_image = loadImage("Patch.png")
+        self.boxsize = 67
+        self.speed = 2
+        self.ratio_factors = [0, 8.3]
+        self.vector_offsets = [- 110, 0, - 50, 50] 
+        self.moving_direction = [1, 0]
 
     def rosalind(self):
-        global enemy_dialogue
-        enemy_dialogue = ["Rosalind stumbles in the way.", "Rosalind apologizes.", "Rosalind cries pitifully", "Rosalind cries out, beggin for your sympathy", "Rosalind sniffs and wipes away her tears.", "Rosaline finally cracks a smile, she no longer wants to fight."]
+        global enemy_dialogue, attack_functions, enemy_image
+        enemy_dialogue = ["Rosalind stumbles in the way.", "Rosalind apologizes.", "Rosalind cries pitifully", "Rosalind cries out, still frightened", "Rosalind sniffs and wipes away her tears.", "Rosaline finally cracks a smile, she no longer wants to fight."]
         self.enemy_attributes = ["Rosalind", 30, 40, False, -360]  # Still need to change stats and location
         self.act_path = ["Threaten", "Play", "Smile", "Hug", "231", ""]
-        attack_functions = [enemy.rosalind_attack]
+        enemy_attack = enemy.attack
+        enemy_image = loadImage("rosalind.png")
+        self.boxsize = 130
+        self.speed = 2
+        self.ratio_factors = [15.4, 0]
+        self.vector_offsets = [- 110, 0, - 50, 50]        
+        self.moving_direction = [0, 1]        
 
     def quack(self):
-        global enemy_dialogue
-        enemy_dialogue = ["Quack blocks the way!", "Quack brings a friend", "Woodward growls at you", "Quack watches you pet his little friend", "Both Quack and Woordward find you very amusing", "Quack and Woodward no longer want to fight."]
+        global enemy_dialogue, attack_functions, enemy_image
+        enemy_dialogue = ["Quack blocks the way!", "Quack gives you an evil grin", "Quack growls at you", "Quack laughs at your defiant attitude", "Quack finds you very amusing", "Quack no longer wants to fight."]
         self.enemy_attributes = ["Quack", 30, 40, False, -582]
         self.act_path = ["Taunt", "Ignore", "Joke", "Pet", "1323", ""]
-        attack_functions = [enemy.quack_attack]
+        enemy_attack = enemy.attack
+        enemy_image = loadImage("quack.png")
+        self.boxsize = 33
+        self.speed = 3
+        self.ratio_factors = [0, 10.85]
+        self.vector_offsets = [- 110, 0, - 80, 30]        
+        self.moving_direction = [1, 0]               
 
     def desdemona(self):
-        global enemy_dialogue
+        global enemy_dialogue, attack_functions, enemy_image
         enemy_dialogue = ["Desdemona blocks the way!", "Desmonda files her nails", "You are ignored", "She glares at you, the insult hits a sore spot", "Desdemona's confidence goes down", "Desdemona is getting scared", "Desdemona cowers in fright."]
         self.enemy_attributes = ["Desdemona", 30, 40, False, -759]
         self.act_path = ["Threaten", "Cheer", "Insult", "Scare", "2023", ""]
-        attack_functions = [enemy.desdemona_attack]
+        enemy_attack = enemy.attack
+        enemy_image = loadImage("desdemona.png")
+        self.boxsize = 63
+        self.speed = 2.5
+        self.ratio_factors = [0, 8.3]
+        self.vector_offsets = [- 110, 0, - 50, 50]        
+        self.moving_direction = [1, 0]        
 
     def gallo(self):
-        global enemy_dialogue
+        global enemy_dialogue, attack_functions, enemy_image
         enemy_dialogue = ["Gallo blocks the way!", "Gallo takes your phone", "Gallo transcends this realm of mortals. Your actions are meaningless."]
         self.enemy_attributes = ["Gallo", 300, 300, False, -881]
         self.act_path = ["Plead", "Reason", "Talk", "Compliment", "0", ""]
-        attack_functions = [enemy.gallo_attack]
+        enemy_attack = enemy.attack
+        enemy_image = loadImage("gallo.png")
+        self.boxsize = 164
+        self.speed = 2.5
+        self.ratio_factors = [19, 0]
+        self.vector_offsets = [- 110, 0, - 80, 80]        
+        self.moving_direction = [0, 1]        
 
-    def patch_attack(self):
-        global offset, obstacle_pos, ratio, attack_counter, MAX_ATTACK_COUNT
-        
+    def attack(self):
+        global offset, obstacle_pos, ratio, attack_counter, MAX_ATTACK_COUNT, reset, slide
         if attack_counter >= MAX_ATTACK_COUNT:
-            return
-        
+            enemy.reset()
+            slide = 3
+            
         if offset < 220:
-            offset += 1
+            offset += self.speed
 
         fill(255)
         stroke(255)
         strokeWeight(5)
         try:
-            self.obstacle_pos = [width/2  - 110 + offset, (height/2) + 8.3 * ratio, width/2 - 50 + offset, (height/2 + 50) + 8.3 * ratio]
+            self.obstacle_pos = [(width/2) + self.ratio_factors[0] * ratio + self.vector_offsets[0] + self.moving_direction[0] * offset, 
+            (height/2) + self.ratio_factors[1] * ratio + self.vector_offsets[1] + self.moving_direction[1] * offset, 
+            (width/2) + self.ratio_factors[0] * ratio + self.vector_offsets[2] + self.moving_direction[0] * offset, 
+            (height/2) + self.ratio_factors[1] * ratio + self.vector_offsets[3] + self.moving_direction[1] * offset]
         except:
             raise Exception("offset and ratio need to be ints or floats.")
         try:
@@ -516,99 +545,11 @@ class Enemy:
         except:
             raise Exception("obstacle_pos needs to be a list containing ints or floats of at least 2 corners of an obstacle.")
         
-        if offset >= 153:
+        if offset >= 220 - self.boxsize:
             offset = 0
             ratio = random.randint(0, 10) 
-            attack_counter += 1
-        
-    def quack_attack(self):
-        global offset, obstacle_pos, ratio
-        
-        if offset < 220:
-            offset += 3
-
-        fill(255)
-        stroke(255)
-        strokeWeight(5)
-        try:
-            self.obstacle_pos = [width/2  - 110 + offset, (height/2) + 10.85 * ratio, width/2 - 80 + offset, (height/2 + 30) + 10.85 * ratio]
-        except:
-            raise Exception("offset and ratio need to be ints or floats.")
-        try:
-            rect(self.obstacle_pos[0], self.obstacle_pos[1], self.obstacle_pos[2], self.obstacle_pos[3])
-        except:
-            raise Exception("obstacle_pos needs to be a list containing ints or floats of at least 2 corners of an obstacle.")
-        
-        if offset >= 187:
-            offset = 0
-            ratio = random.randint(0, 10) 
-
-    def desdemona_attack(self):
-        global offset, obstacle_pos, ratio
-        
-        if offset < 220:
-            offset += 2.5
-
-        fill(255)
-        stroke(255)
-        strokeWeight(5)
-        try:
-            self.obstacle_pos = [width/2  - 110 + offset, (height/2) + 8.3 * ratio, width/2 - 50 + offset, (height/2 + 50) + 8.3 * ratio]
-        except:
-            raise Exception("offset and ratio need to be ints or floats.")
-        try:
-            rect(self.obstacle_pos[0], self.obstacle_pos[1], self.obstacle_pos[2], self.obstacle_pos[3])
-        except:
-            raise Exception("obstacle_pos needs to be a list containing ints or floats of at least 2 corners of an obstacle.")
-        
-        if offset >= 157:
-            offset = 0
-            ratio = random.randint(0, 10) 
-        
-    def rosalind_attack(self):
-        global offset, obstacle_pos, ratio
-        
-        if offset < 220:
-            offset += 2
-
-        fill(255)
-        stroke(255)
-        strokeWeight(5)
-        try:
-            self.obstacle_pos = [width/2  - 110 + 15.4 * ratio, (height/2) + offset, width/2 - 50 + 15.4 * ratio , (height/2 + 50) + offset]
-        except:
-            raise Exception("offset and ratio need to be ints or floats.")
-        try:
-            rect(self.obstacle_pos[0], self.obstacle_pos[1], self.obstacle_pos[2], self.obstacle_pos[3])
-        except:
-            raise Exception("obstacle_pos needs to be a list containing ints or floats of at least 2 corners of an obstacle.")
-            
-        if offset >= 90:
-            offset = 0
-            ratio = random.randint(0, 10) 
-            
-    def gallo_attack(self):
-        global offset, obstacle_pos, ratio
-        
-        if offset < 220:
-            offset += 2.5
-
-        fill(255)
-        stroke(255)
-        strokeWeight(5)
-        try:
-            self.obstacle_pos = [width/2  - 110 + 19 * ratio, (height/2) + offset, width/2 - 80 + 19 * ratio , (height/2 + 80) + offset]
-        except:
-            raise Exception("offset and ratio need to be ints or floats.")
-        try:
-            rect(self.obstacle_pos[0], self.obstacle_pos[1], self.obstacle_pos[2], self.obstacle_pos[3])
-        except:
-            raise Exception("obstacle_pos needs to be a list containing ints or floats of at least 2 corners of an obstacle.")
-            
-        if offset >= 56:
-            offset = 0
-            ratio = random.randint(0, 10)
-            
+            attack_counter += 1         
+               
     def act(self, act_index): #problem
         index = 0
         number_correct_choices = 0
@@ -656,7 +597,7 @@ class Enemy:
                     self.immune_time_elapsed = 0
             
     def reset(self):
-        global offset, user, keys_pressed, player_pos, slide, user_color
+        global offset, user, keys_pressed, player_pos, slide, user_color, attack_counter
 
         self.obstacle_pos = []
         offset = 0
@@ -666,7 +607,7 @@ class Enemy:
         time.sleep(0.25)
         noTint()
         self.collision_immune = False
-
+        attack_counter = 0
 
 class User:
     user_health = []
@@ -742,4 +683,4 @@ class Tests():
         assert enemy_dialogue == ["Patch blocks the way!", "You will be judged for your every action...", "Patch is annoyed", "Patch is taken aback, surprised.", "Patch smiles at you", "Patch laughs and his arrogant vibe dissolves into a friendly aura."], "Should be given patch's dialogue"
         assert test_class.enemy_attributes == ["Patch", 1, 50, False, -88], "Should be given Patch stats and location"
         assert test_class.act_path == ["Taunt", "Compliment", "Critcize", "Encourage", "131", ""], "Should be given actions user can do against Patch and solution to problem"
-        assert attack_functions == [enemy.patch_attack], "Should be set to patch_attack"
+      #  assert attack_functions == [enemy.patch_attack], "Should be set to patch_attack"

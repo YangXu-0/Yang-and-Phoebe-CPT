@@ -167,7 +167,7 @@ def draw():
 
     elif slide == 6:
         draw_fight_box([width/2 - 110, height/2 - 4], [width/2 + 110, height/2 + 139])    
-        #enemy_attack()
+        enemy_attack()
         if user.user_health[0] <= 0:
             time.sleep(0.15)
             slide = 7

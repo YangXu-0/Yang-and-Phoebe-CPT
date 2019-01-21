@@ -247,6 +247,7 @@ HP is lost for every obstacle you hit.""", width/2 - 298, height/2 - 205)
 
 
 def battle_screen_display(user_health, enemy_health):
+    global patch, rosalind, quack, quackfriend, desdemona, gallo, counter
     # Selection boxes
     stroke("#FF8503")
     fill(0)
@@ -277,6 +278,23 @@ def battle_screen_display(user_health, enemy_health):
     except:
          raise Exception("Enemy's health should contain 2 integers in a list. The list contained '{}'".format(enemy_health))
 
+    if counter == 0:
+        patch.resize(0,90)
+        image(patch, width/2, height/2)
+    elif counter == 1:
+        rosalind.resize(0,90)
+        image(rosalind, width/2, height/2)
+    elif counter == 2:
+        quack.resize(0,90)
+        image(quack, width/2, height/2)
+        quackfriend.resize(0,90)
+        image(quackfriend, width/2 - 50, height/2)
+    elif counter == 3:
+        desdemona.resize(0,90)
+        image(desdemona, width/2, height/2)
+    elif counter == 4:
+        gallo.resize(0,90)
+        image(gallo, width/2, height/2)
 
 def draw_fight_box(corner1, corner2):
     fill(0)
@@ -496,10 +514,11 @@ class Enemy:
         attack_functions = [enemy.gallo_attack]
 
     def patch_attack(self):
-        global offset, obstacle_pos, ratio, attack_counter, MAX_ATTACK_COUNT
+        global offset, obstacle_pos, ratio, attack_counter, MAX_ATTACK_COUNT, slide
         
         if attack_counter >= MAX_ATTACK_COUNT:
-            return
+            enemy.reset()
+            slide = 3
         
         if offset < 220:
             offset += 1
@@ -522,7 +541,11 @@ class Enemy:
             attack_counter += 1
         
     def quack_attack(self):
-        global offset, obstacle_pos, ratio
+        global offset, obstacle_pos, ratio, attack_counter, MAX_ATTACK_COUNT, slide
+       
+        if attack_counter >= MAX_ATTACK_COUNT:
+            enemy.reset()
+            slide = 3
         
         if offset < 220:
             offset += 3
@@ -544,7 +567,11 @@ class Enemy:
             ratio = random.randint(0, 10) 
 
     def desdemona_attack(self):
-        global offset, obstacle_pos, ratio
+        global offset, obstacle_pos, ratio, attack_counter, MAX_ATTACK_COUNT, slide
+        
+        if attack_counter >= MAX_ATTACK_COUNT:
+            enemy.reset()
+            slide = 3
         
         if offset < 220:
             offset += 2.5
@@ -566,7 +593,11 @@ class Enemy:
             ratio = random.randint(0, 10) 
         
     def rosalind_attack(self):
-        global offset, obstacle_pos, ratio
+        global offset, obstacle_pos, ratio, attack_counter, MAX_ATTACK_COUNT, slide
+        
+        if attack_counter >= MAX_ATTACK_COUNT:
+            enemy.reset()
+            slide = 3
         
         if offset < 220:
             offset += 2
@@ -588,7 +619,11 @@ class Enemy:
             ratio = random.randint(0, 10) 
             
     def gallo_attack(self):
-        global offset, obstacle_pos, ratio
+        global offset, obstacle_pos, ratio, attack_counter, MAX_ATTACK_COUNT, slide
+        
+        if attack_counter >= MAX_ATTACK_COUNT:
+            enemy.reset()
+            slide = 3
         
         if offset < 220:
             offset += 2.5

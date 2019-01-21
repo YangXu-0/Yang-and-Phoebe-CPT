@@ -10,7 +10,7 @@ keys_pressed = [False for key_code in range(256)]
 enemy_dialogue = []
 movement = True
 text_list_index = 0 # Maybe fix
-ENEMY_ATTACK_BOUNDARIES = [430, 379, 210, 236]
+ENEMY_ATTACK_BOUNDARIES = [425, 375, 200, 229]
 WORLD_BOUNDARIES = [0, 150, -891, -72]
 map_offset = [-10, 0]
 counter = 0
@@ -44,12 +44,15 @@ def setup():
     user = User(USER_HEALTH)
     tests = Tests()
 
-    print(movement_boundaries([100, 200], [430, 379, 210, 236], 10))
-
     tests.test_user_attack_damage_calc()
     tests.test_user_movement()
     tests.test_movement_boundaries()
     tests.test_enemy_patch()
+    tests.test_enemy_act()
+    tests.test_enemy_collision_detection()
+    tests.test_immunity()
+    tests.test_reset()
+    tests.test_use_item()
     
     enemy.patch()  # Defined at beginning just to get program running
     
@@ -60,8 +63,7 @@ def draw():
     global slide, user_option_selection_counter, option_selection, user, enemy
     global offset, player_pos, movement, map_offset
     global counter, keys_pressed, enemy_attack, user_health, user_items
-    global attack_counter, MAX_ATTACK_COUNT
-    global text_list_index
+    global attack_counter, MAX_ATTACK_COUNT, text_list_index
     background(0)
     
     if slide == 3 or slide == 4 or slide == 5 or slide == 6:
@@ -107,8 +109,12 @@ def draw():
         fill(255)
         if user_option_selection_counter == 0:
             fight()
+            if offset >= 490:
+                offset = 0
+                time.sleep(0.15)
+                slide += 1
         elif user_option_selection_counter == 1:
-            print_options(0, 4, enemy.act_path)
+            print_options(0, 4, enemy.act_choices)
             user_choice_pos = [56 + (151 * option_selection), 320] #problem
             draw_user(user_choice_pos[0], user_choice_pos[1])
         elif user_option_selection_counter == 2:
@@ -150,7 +156,8 @@ def draw():
                 text(enemy_dialogue[text_index + 2], 60, 320)
 
         elif user_option_selection_counter == 2:
-            user.use_item(option_selection, user_items.items, user_items.item_values)
+            if len(user.items) > 0:
+                user.use_item(option_selection, user_items.items, user_items.item_values)
             slide += 1
         else:
             slide += 1
@@ -162,16 +169,16 @@ def draw():
             time.sleep(0.15)
             slide = 7
         player_pos = user_movement(1.5, player_pos, [38, 40, 37, 39], keys_pressed)
-        player_pos = movement_boundaries(player_pos, ENEMY_ATTACK_BOUNDARIES, 10)
+        player_pos = movement_boundaries(player_pos, ENEMY_ATTACK_BOUNDARIES, 13)
         draw_user(player_pos[0], player_pos[1])
-        if enemy.collision_immune== True:
+        if enemy.collision_immune == True:
             tint(165, 35, 35)
         else:
             noTint()
         
-        if enemy.collision_detection(player_pos):
+        if enemy.collision_detection(player_pos, 3):
             enemy.collision_immune = True
-            enemy.immune_time_elapsed = frameCount
+            enemy.immune_time_start = frameCount
             user.user_health[0] -= ENEMY_DAMAGE
         
         enemy.immunity()
@@ -240,7 +247,6 @@ HP is lost for every obstacle you hit.""", width/2 - 298, height/2 - 205)
 
 
 def battle_screen_display(user_health, enemy_health):
-    
     # Selection boxes
     stroke("#FF8503")
     fill(0)
@@ -270,6 +276,7 @@ def battle_screen_display(user_health, enemy_health):
         text("Enemy Health {}/{}".format(enemy_health[0], enemy_health[1]), width/2 - 120, height/2 + 165)
     except:
          raise Exception("Enemy's health should contain 2 integers in a list. The list contained '{}'".format(enemy_health))
+
 
 def draw_fight_box(corner1, corner2):
     fill(0)
@@ -314,7 +321,7 @@ def lose_screen():
     text("how unfortunate :)", width/2+85, height/2+75)
 
 
-def fight(): #problem
+def fight(): 
     global offset, slide
 
     # Box
@@ -331,11 +338,7 @@ def fight(): #problem
     stroke(255)
     strokeWeight(10)
     rect((width/2 - 246) + offset, height/2 + 15, (width/2 - 245) + offset, height/2 + 120)
-
-    if offset >= 490:
-        offset = 0
-        slide += 1
-
+    
     offset += 2
 
 
@@ -348,7 +351,17 @@ def user_attack_damage_calc(start, end, hit_location):
     return damage
 
 
-def user_movement(speed, position, keys_used, keys_pressed): #problem 
+def user_movement(speed, position, keys_used, keys_pressed):
+    try:
+        keys_pressed[keys_used[0]: keys_used[3]]
+    except:
+        raise Exception("keys_pressed should contain a value for every key code. keys_used should contain 4 key codes (ints).")
+
+    try:
+        position[1] - speed
+    except:
+        raise Exception("position should be a list containing 2 ints/floats. speed should be an int or float value.")
+
     if keys_pressed[keys_used[0]]:
         position[1] -= speed
     if keys_pressed[keys_used[1]]:
@@ -361,7 +374,12 @@ def user_movement(speed, position, keys_used, keys_pressed): #problem
     return position
 
 
-def movement_boundaries(position, boundary_values, radius): #problem
+def movement_boundaries(position, boundary_values, radius):
+    try:
+        position[1] >= (boundary_values[3] + radius)
+    except:
+        raise Exception("position should be a list containing 2 ints/floats. boundary_values should be a list containing 3 ints/floats. radius should be an int or float value.")
+    
     if not(position[0] >= (boundary_values[2] + radius)):
         position[0] = (boundary_values[2] + radius)
     if not(position[0] <= (boundary_values[0] - radius)):
@@ -375,8 +393,7 @@ def movement_boundaries(position, boundary_values, radius): #problem
 
 
 def draw_user(x_pos, y_pos):
-    heart.resize(0, 15)
-    
+    heart.resize(0, 13)
     try:
         image(heart, x_pos, y_pos)
     except:
@@ -385,7 +402,7 @@ def draw_user(x_pos, y_pos):
 
 def draw_world_user(x_pos, y_pos,length):
     global player
-    player.resize(0,35)
+    player.resize(0, 55)
     image(player, x_pos, y_pos)
 
 
@@ -405,16 +422,15 @@ def keyPressed():
         keys_pressed[keyCode] = True
 
 
-def keyReleased(): #problem
+def keyReleased():
     global user_option_selection_counter, slide, option_selection, keys_pressed, text_list_index
-    # print("keyreleased = " + str(key))
     if key == "z":
         if slide in [2, 8] and movement is False:
             text_list_index += 1            
         elif slide in [0, 1, 3, 4, 5, 8]:
             time.sleep(0.15)
             slide += 1
-    elif key == "x" and slide in [3] and user_option_selection_counter not in [0, 3]:
+    elif key == "x" and slide in [4] and user_option_selection_counter not in [0, 3]:
         slide -= 1
 
     if slide == 3:
@@ -444,23 +460,25 @@ def mousePressed():
 
 class Enemy:
     enemy_attributes = []
-    act_path = []
+    act_choices = []
+    act_solution = []
     obstacle_pos = []
     collision_immune = False
-    immune_time_elapsed = 0
+    immune_time_start = 0
     IMMUNE_TIME = 70  # Frames
 
-    boxsize = 67
-    speed = 1
-    ratio_factors = [0, 0]
-    vector_offsets = [0,0,0,0]
-    moving_direction = [1, 0]
+    boxsize = 0
+    speed = 0
+    ratio_factors = []
+    vector_offsets = []
+    moving_direction = []
 
     def patch(self):
         global enemy_dialogue, enemy_attack, enemy_image
         enemy_dialogue = ["Patch blocks the way!", "You will be judged for your every action...", "Patch is annoyed", "Patch is taken aback, surprised.", "Patch smiles at you", "Patch laughs and his arrogant vibe dissolves into a friendly aura."]
         self.enemy_attributes = ["Patch", 1, 50, False, -88]
-        self.act_path = ["Taunt", "Compliment", "Critcize", "Encourage", "131", ""]
+        self.act_choices = ["Taunt", "Compliment", "Critcize", "Encourage"]
+        self.act_solution = ["131", ""]
         enemy_attack = enemy.attack
         enemy_image = loadImage("Patch.png")
         self.boxsize = 67
@@ -472,8 +490,9 @@ class Enemy:
     def rosalind(self):
         global enemy_dialogue, attack_functions, enemy_image
         enemy_dialogue = ["Rosalind stumbles in the way.", "Rosalind apologizes.", "Rosalind cries pitifully", "Rosalind cries out, still frightened", "Rosalind sniffs and wipes away her tears.", "Rosaline finally cracks a smile, she no longer wants to fight."]
-        self.enemy_attributes = ["Rosalind", 30, 40, False, -360]  # Still need to change stats and location
-        self.act_path = ["Threaten", "Play", "Smile", "Hug", "231", ""]
+        self.enemy_attributes = ["Rosalind", 1, 40, False, -360]  # Still need to change stats and location
+        self.act_choices = ["Threaten", "Play", "Smile", "Hug"]
+        self.act_solution = ["231", ""]
         enemy_attack = enemy.attack
         enemy_image = loadImage("rosalind.png")
         self.boxsize = 130
@@ -485,8 +504,9 @@ class Enemy:
     def quack(self):
         global enemy_dialogue, attack_functions, enemy_image
         enemy_dialogue = ["Quack blocks the way!", "Quack gives you an evil grin", "Quack growls at you", "Quack laughs at your defiant attitude", "Quack finds you very amusing", "Quack no longer wants to fight."]
-        self.enemy_attributes = ["Quack", 30, 40, False, -582]
-        self.act_path = ["Taunt", "Ignore", "Joke", "Pet", "1323", ""]
+        self.enemy_attributes = ["Quack", 1, 40, False, -582]
+        self.act_choices = ["Taunt", "Ignore", "Joke", "Pet"]
+        self.act_solution = ["1323", ""]
         enemy_attack = enemy.attack
         enemy_image = loadImage("quack.png")
         self.boxsize = 33
@@ -498,8 +518,9 @@ class Enemy:
     def desdemona(self):
         global enemy_dialogue, attack_functions, enemy_image
         enemy_dialogue = ["Desdemona blocks the way!", "Desmonda files her nails", "You are ignored", "She glares at you, the insult hits a sore spot", "Desdemona's confidence goes down", "Desdemona is getting scared", "Desdemona cowers in fright."]
-        self.enemy_attributes = ["Desdemona", 30, 40, False, -759]
-        self.act_path = ["Threaten", "Cheer", "Insult", "Scare", "2023", ""]
+        self.enemy_attributes = ["Desdemona", 1, 40, False, -759]
+        self.act_choices = ["Threaten", "Cheer", "Insult", "Scare"]
+        self.act_solution = ["2023", ""]
         enemy_attack = enemy.attack
         enemy_image = loadImage("desdemona.png")
         self.boxsize = 63
@@ -511,8 +532,9 @@ class Enemy:
     def gallo(self):
         global enemy_dialogue, attack_functions, enemy_image
         enemy_dialogue = ["Gallo blocks the way!", "Gallo takes your phone", "Gallo transcends this realm of mortals. Your actions are meaningless."]
-        self.enemy_attributes = ["Gallo", 300, 300, False, -881]
-        self.act_path = ["Plead", "Reason", "Talk", "Compliment", "0", ""]
+        self.enemy_attributes = ["Gallo", 1, 300, False, -881]
+        self.act_choices = ["Plead", "Reason", "Talk", "Compliment"]
+        self.act_solution = ["0", ""]
         enemy_attack = enemy.attack
         enemy_image = loadImage("gallo.png")
         self.boxsize = 164
@@ -550,26 +572,31 @@ class Enemy:
             ratio = random.randint(0, 10) 
             attack_counter += 1         
                
-    def act(self, act_index): #problem
+    def act(self, act_index):
         index = 0
         number_correct_choices = 0
 
-        if self.act_path[5] == "":
-            self.act_path[5] = str(act_index)
+        try:
+            self.act_solution[1]
+        except:
+            raise Exception("act_solution should contain 2 strings in a list.")
         else:
-            self.act_path[5] += str(act_index)
+            if self.act_solution[1] == "":
+                self.act_solution[1] = str(act_index)
+            else:
+                self.act_solution[1] += str(act_index)
 
         fill(255)
-        for action in range(0, len(self.act_path[4])):
-            if self.act_path[5][index + 1:].count(self.act_path[4][action]) > 0:
-                index = self.act_path[5][index:].find(self.act_path[4][action])
+        for action in range(0, len(self.act_solution[0])):
+            if self.act_solution[1][index + 1:].count(self.act_solution[0][action]) > 0:
+                index = self.act_solution[1][index:].find(self.act_solution[0][action])
                 number_correct_choices += 1
             else:
                 return number_correct_choices
         else:
             return len(enemy_dialogue) - 1
 
-    def collision_detection(self, player_pos):
+    def collision_detection(self, player_pos, radius):
         for coordinate in range(0, len(self.obstacle_pos), 4):
             try:
                 player_pos[0] >= self.obstacle_pos[coordinate] and player_pos[0] <= self.obstacle_pos[coordinate + 2] \
@@ -578,8 +605,8 @@ class Enemy:
             except:
                 raise Exception("player_pos should contain the x and y pos (ints) of player in a list as separate elements. obstacle_pos should contain the location (x1, y1, x2, y2) of every obstacle as separate elements in a list.")
             else:
-                if player_pos[0] >= self.obstacle_pos[coordinate] and player_pos[0] <= self.obstacle_pos[coordinate + 2] \
-                    and player_pos[1] >= self.obstacle_pos[coordinate + 1] and player_pos[1] <= self.obstacle_pos[coordinate + 3] \
+                if player_pos[0] - radius >= self.obstacle_pos[coordinate] and player_pos[0] + radius <= self.obstacle_pos[coordinate + 2] \
+                    and player_pos[1] - radius >= self.obstacle_pos[coordinate + 1] and player_pos[1] + radius <= self.obstacle_pos[coordinate + 3] \
                         and self.collision_immune is False:
                     return True
         else:
@@ -588,13 +615,13 @@ class Enemy:
     def immunity(self):
         if self.collision_immune:
             try:
-                frameCount - self.immune_time_elapsed >= self.IMMUNE_TIME
+                frameCount - self.immune_time_start >= self.IMMUNE_TIME
             except:
-                raise Exception("immune_time_elapsed and IMMUNE_TIME should be ints or floats.")
+                raise Exception("immune_time_start and IMMUNE_TIME should be ints or floats.")
             else:
-                if frameCount - self.immune_time_elapsed >= self.IMMUNE_TIME:
+                if frameCount - self.immune_time_start >= self.IMMUNE_TIME:
                     self.collision_immune = False
-                    self.immune_time_elapsed = 0
+                    self.immune_time_start = 0
             
     def reset(self):
         global offset, user, keys_pressed, player_pos, slide, user_color, attack_counter
@@ -608,6 +635,7 @@ class Enemy:
         noTint()
         self.collision_immune = False
         attack_counter = 0
+
 
 class User:
     user_health = []
@@ -678,9 +706,51 @@ class Tests():
         assert movement_boundaries([100, 480], [430, 379, 210, 236], 10) == [220, 369], "x position should change to 220"
 
     def test_enemy_patch(self):
-        test_class = Enemy()
-        test_class.patch()
+        test_enemy_class = Enemy()
+        test_enemy_class.patch()
         assert enemy_dialogue == ["Patch blocks the way!", "You will be judged for your every action...", "Patch is annoyed", "Patch is taken aback, surprised.", "Patch smiles at you", "Patch laughs and his arrogant vibe dissolves into a friendly aura."], "Should be given patch's dialogue"
-        assert test_class.enemy_attributes == ["Patch", 1, 50, False, -88], "Should be given Patch stats and location"
-        assert test_class.act_path == ["Taunt", "Compliment", "Critcize", "Encourage", "131", ""], "Should be given actions user can do against Patch and solution to problem"
+        assert test_enemy_class.enemy_attributes == ["Patch", 1, 50, False, -88], "Should be given Patch stats and location"
+        assert test_enemy_class.act_choices == ["Taunt", "Compliment", "Critcize", "Encourage"], "Should be given actions user can do against Patch and solution to problem"
       #  assert attack_functions == [enemy.patch_attack], "Should be set to patch_attack"
+      
+    def test_enemy_act(self):
+        test_enemy_class = Enemy()
+        test_enemy_class.patch()
+        assert test_enemy_class.act(3) == 0, "Should return a text index"
+        assert test_enemy_class.act(4) == 0, "Should return a text index"
+        test_enemy_class.act_solution[1] = "13"
+        assert test_enemy_class.act(1) == 5, "Should return the number of correct choices"
+    
+    def test_enemy_collision_detection(self):
+        test_enemy_class = Enemy()
+        test_enemy_class.obstacle_pos = [100, 200, 300, 400]
+        assert test_enemy_class.collision_detection([0, 300], 4) == False, "Should return False"
+        assert test_enemy_class.collision_detection([150, 300], 2) == True, "Should return True"
+        assert test_enemy_class.collision_detection([300, 0], 3) == False, "Should return False"
+        assert test_enemy_class.collision_detection([200, 300], 0) == True, "Should return False"
+        
+    def test_immunity(self):
+        test_enemy_class = Enemy()
+        test_enemy_class.collision_immune = True
+        test_enemy_class.immunity()
+        assert test_enemy_class.collision_immune == True, "Should return True"
+        
+    def test_reset(self):
+        test_enemy_class = Enemy()
+        test_enemy_class.reset()
+        assert test_enemy_class.obstacle_pos == [], "Should be set to an empty list"
+        assert offset == 0, "Should be set to 0"
+        assert keys_pressed == [False for key_code in range(256)], "Should be set to a list that contains 256 False elements"
+        assert player_pos == [320, 308], "Should be set to [320, 308]"
+        assert user_color == "#FF0000", "Should be set to #FF0000"
+        assert test_enemy_class.collision_immune == False, "Should be set to False"
+        assert attack_counter == 0, "Should be set to 0"
+        
+    def test_use_item(self):
+        test_user_class = User([1, 20])
+        list_items = [0, 1, 2, 3]
+        list_item_values = [0, 1, 2, 3]
+        test_user_class.use_item(2, list_items, list_item_values)
+        assert test_user_class.user_health == [3, 20], "Should be changed to [3, 20]"
+        assert list_items == [0, 1, 3], "Should remove 2 from list"
+        assert list_item_values == [0, 1, 3], "Should remove 2 from list"

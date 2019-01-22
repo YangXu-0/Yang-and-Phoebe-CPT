@@ -93,7 +93,7 @@ def draw():
             draw_textbox([width/2 - 308, height/2 - 4],
                          [width/2 + 308, height/2 + 139])
 
-    # Main if statement that organizes all the functions and whatnot
+    # Main if statement: organizes all the functions and whatnot
     if slide == 0:
         title_screen()
     elif slide == 1:
@@ -406,8 +406,10 @@ def user_movement(speed, position, keys_used, keys_pressed):
     try:
         int(position[0]) and int(position[1]) and int(speed)
     except:
-        raise Exception("position should be a list containing 2 ints/floats." +
-        " speed should be an int or float value.")
+        raise Exception(
+            "position should be list containing 2 ints/floats. \
+            speed should be an int or float value."
+        )
 
     if keys_pressed[keys_used[0]]:
         position[1] -= speed
@@ -428,9 +430,11 @@ def movement_boundaries(position, boundary_values, radius):
          and int(radius) and int(boundary_values[0])\
          and int(boundary_values[2]) and int(boundary_values[3])
     except:
-        raise Exception("position should be a list containing 2 ints/floats." +
-        " boundary_values should be a list containing 3 ints/floats." +
-        " radius should be an int or float value.")
+        raise Exception(
+            "position should be a list containing 2 ints/floats. \
+            boundary_values should be a list containing 3 ints/floats. \
+            radius should be an int or float value."
+        )
 
     if not(position[0] >= (boundary_values[2] + radius)):
         position[0] = (boundary_values[2] + radius)
@@ -473,8 +477,10 @@ def print_options(min_range, max_range, options_list):
     try:
         slice_list = options_list[min_range: max_range]
     except:
-        raise Exception("min_range, max_range should be ints within the" +
-        " length of options_list (needs to be a list).")
+        raise Exception(
+            "min_range, max_range should be ints within the \
+            length of options_list (needs to be a list)."
+        )
 
     for option in range(0, len(slice_list)):
         text(slice_list[option], 60 + (option * 151), 320)
@@ -495,8 +501,8 @@ def keyReleased():
         elif slide in [0, 1, 3, 4, 5, 8]:
             time.sleep(0.15)
             slide += 1
-    elif key == "x" and slide in [4]\
-         and user_option_selection_counter not in [0, 3]:
+    elif key == "x" and slide in [4] and \
+            user_option_selection_counter not in [0, 3]:
         slide -= 1
 
     if slide == 3:
@@ -542,10 +548,12 @@ class Enemy:
 
     def patch(self):
         global enemy_dialogue, enemy_attack, enemy_image
-        enemy_dialogue = ["Patch blocks the way!",
-         "You will be judged for your every action...", "Patch is annoyed",
-         "Patch is taken aback, surprised.", "Patch smiles at you",
-         "Patch laughs and his arrogant vibe dissolves into a friendly aura."]
+        enemy_dialogue = [
+            "Patch blocks the way!",
+            "You will be judged for your every action...", "Patch is annoyed",
+            "Patch is taken aback, surprised.", "Patch smiles at you",
+            "Patch laughs. His arrogant vibe dissolves into a friendly aura."
+            ]
         self.enemy_health = [50, 50]
         self.enemy_location = -88
         self.act_choices = ["Taunt", "Compliment", "Critcize", "Encourage"]
@@ -559,11 +567,13 @@ class Enemy:
 
     def rosalind(self):
         global enemy_dialogue, attack_functions, enemy_image
-        enemy_dialogue = ["Rosalind stumbles in the way.",
-        "Rosalind apologizes.", "Rosalind cries pitifully",
-        "Rosalind cries out, still frightened",
-          "Rosalind sniffs and wipes away her tears.",
-           "Rosaline finally cracks a smile, she no longer wants to fight."]
+        enemy_dialogue = [
+            "Rosalind stumbles in the way.",
+            "Rosalind apologizes.", "Rosalind cries pitifully",
+            "Rosalind cries out, still frightened",
+            "Rosalind sniffs and wipes away her tears.",
+            "Rosaline finally cracks a smile, she no longer wants to fight."
+            ]
         self.enemy_health = [70, 70]
         self.enemy_location = -360
         self.act_choices = ["Threaten", "Play", "Smile", "Hug"]
@@ -577,10 +587,12 @@ class Enemy:
 
     def quack(self):
         global enemy_dialogue, attack_functions, enemy_image
-        enemy_dialogue = ["Quack blocks the way!",
-        "Quack gives you an evil grin",
-         "Quack growls at you", "Quack laughs at your defiant attitude",
-          "Quack finds you very amusing", "Quack no longer wants to fight."]
+        enemy_dialogue = [
+            "Quack blocks the way!",
+            "Quack gives you an evil grin",
+            "Quack growls at you", "Quack laughs at your defiant attitude",
+            "Quack finds you very amusing", "Quack no longer wants to fight."
+            ]
         self.enemy_health = [80, 80]
         self.enemy_location = -582
         self.act_choices = ["Taunt", "Ignore", "Joke", "Pet"]
@@ -594,11 +606,14 @@ class Enemy:
 
     def desdemona(self):
         global enemy_dialogue, attack_functions, enemy_image
-        enemy_dialogue = ["Desdemona blocks the way!",
-        "Desmonda files her nails",
-         "You are ignored", "She glares at you, the insult hits a sore spot",
-          "Desdemona's confidence goes down", "Desdemona is getting scared",
-           "Desdemona cowers in fright."]
+        enemy_dialogue = [
+            "Desdemona blocks the way!",
+            "Desmonda files her nails",
+            "You are ignored",
+            "She glares at you, the insult hits a sore spot",
+            "Desdemona's confidence goes down", "Desdemona is getting scared",
+            "Desdemona cowers in fright."
+            ]
         self.enemy_health = [100, 100]
         self.enemy_location = -759
         self.act_choices = ["Threaten", "Cheer", "Insult", "Scare"]
@@ -612,9 +627,11 @@ class Enemy:
 
     def gallo(self):
         global enemy_dialogue, attack_functions, enemy_image
-        enemy_dialogue = ["Gallo blocks the way!", "Gallo takes your phone",
-         "Gallo transcends this realm of mortals." +
-         " Your actions are meaningless."]
+        enemy_dialogue = [
+            "Gallo blocks the way!", "Gallo takes your phone",
+            "Gallo transcends this realm of mortals." +
+            " Your actions are meaningless."
+            ]
         self.enemy_health = [200, 200]
         self.enemy_location = -881
         self.act_choices = ["Plead", "Reason", "Talk", "Compliment"]
@@ -635,26 +652,32 @@ class Enemy:
         stroke(255)
         strokeWeight(5)
         try:
-            self.obstacle_pos = [(width/2) + self.ratio_factors[0] * ratio +
-            self.vector_offsets[0] + self.moving_direction[0] * offset,
-            (height/2) + self.ratio_factors[1] * ratio +
-            self.vector_offsets[1] +
-            self.moving_direction[1] * offset,
-            (width/2) + self.ratio_factors[0] * ratio +
-            self.vector_offsets[2] +
-            self.moving_direction[0] * offset,
-            (height/2) + self.ratio_factors[1] * ratio +
-            self.vector_offsets[3] +
-            self.moving_direction[1] * offset]
+            self.obstacle_pos = [
+                (width/2) + self.ratio_factors[0] * ratio +
+                self.vector_offsets[0] + self.moving_direction[0] * offset,
+                (height/2) + self.ratio_factors[1] * ratio +
+                self.vector_offsets[1] +
+                self.moving_direction[1] * offset,
+                (width/2) + self.ratio_factors[0] * ratio +
+                self.vector_offsets[2] +
+                self.moving_direction[0] * offset,
+                (height/2) + self.ratio_factors[1] * ratio +
+                self.vector_offsets[3] +
+                self.moving_direction[1] * offset
+                ]
         except:
             raise Exception("offset and ratio need to be ints or floats.")
         try:
-            rect(self.obstacle_pos[0], self.obstacle_pos[1],
-            self.obstacle_pos[2],
-             self.obstacle_pos[3])
+            rect(
+                self.obstacle_pos[0], self.obstacle_pos[1],
+                self.obstacle_pos[2],
+                self.obstacle_pos[3]
+             )
         except:
-            raise Exception("obstacle_pos needs to be a list containing" +
-            " ints or floats of at least 2 corners of an obstacle.")
+            raise Exception(
+                "obstacle_pos needs to be a list containing" +
+                " ints or floats of at least 2 corners of an obstacle."
+            )
 
         if offset >= 220 - self.boxsize:
             offset = 0
@@ -680,10 +703,10 @@ class Enemy:
         # Loop compares solution string and user's choices string
         # Returns appropriate values based on that
         for action in range(0, len(self.act_solution[0])):
-            if self.act_solution[1][index + 1:].count\
-                (self.act_solution[0][action]) > 0:
-                index = self.act_solution[1][index:].find\
-                (self.act_solution[0][action])
+            if self.act_solution[1][index + 1:]\
+                    .count(self.act_solution[0][action]) > 0:
+                index = self.act_solution[1][index:]\
+                    .find(self.act_solution[0][action])
                 number_correct_choices += 1
             else:
                 return number_correct_choices
@@ -695,12 +718,13 @@ class Enemy:
         # Loops through coordinates in list to check if user is within them
         for coordinate in range(0, len(self.obstacle_pos), 4):
             try:
-                player_pos[0] + radius >= self.obstacle_pos[coordinate] and\
-                 player_pos[0] - radius <= self.obstacle_pos[coordinate + 2] \
-                    and player_pos[1] + radius >=\
-                    self.obstacle_pos[coordinate + 1] and player_pos[1] -\
+                player_pos[0] + radius >= self.obstacle_pos[coordinate] and \
+                    player_pos[0] - radius <= \
+                    self.obstacle_pos[coordinate + 2] \
+                    and player_pos[1] + radius >= \
+                    self.obstacle_pos[coordinate + 1] and player_pos[1] - \
                     radius <= self.obstacle_pos[coordinate + 3] \
-                        and self.collision_immune is False
+                    and self.collision_immune is False
             except:
                 raise Exception("player_pos should contain the x and y pos" +
                                 "(ints) of player in a list as separate" +
@@ -708,11 +732,13 @@ class Enemy:
                                 " location (x1, y1, x2, y2) of every" +
                                 " obstacle as separate elements in a list.")
             else:
-                if player_pos[0] + radius >= self.obstacle_pos[coordinate] and\
-                 player_pos[0] - radius <= self.obstacle_pos[coordinate + 2] \
-                    and player_pos[1] + radius >=\
-                     self.obstacle_pos[coordinate + 1] and player_pos[1]\
-                      - radius <= self.obstacle_pos[coordinate + 3] \
+                if player_pos[0] + radius >= \
+                    self.obstacle_pos[coordinate] and \
+                    player_pos[0] - radius <= \
+                    self.obstacle_pos[coordinate + 2] \
+                        and player_pos[1] + radius >= \
+                        self.obstacle_pos[coordinate + 1] and player_pos[1] \
+                        - radius <= self.obstacle_pos[coordinate + 3] \
                         and self.collision_immune is False:
                     return True
         else:
@@ -723,8 +749,10 @@ class Enemy:
             try:
                 frameCount - self.immune_time_start >= self.IMMUNE_TIME
             except:
-                raise Exception("immune_time_start and IMMUNE_TIME should" +
-                " be ints or floats.")
+                raise Exception(
+                    "immune_time_start and IMMUNE_TIME should" +
+                    " be ints or floats."
+                )
             else:
                 if frameCount - self.immune_time_start >= self.IMMUNE_TIME:
                     self.collision_immune = False
@@ -756,21 +784,27 @@ class User:
         try:
             value = list_item_values[item_index]
         except:
-            raise Exception("item_index needs to be an int smaller than" +
-            " the length of list_item_values (needs to be list)")
+            raise Exception(
+                "item_index needs to be an int smaller than" +
+                " the length of list_item_values (needs to be list)"
+            )
         (list_item_values).pop(item_index)
 
         try:
             (list_items).pop(item_index)
         except:
-            raise Exception("item_index needs to be an int smaller than" +
-            " the length of list_items (needs to be list)")
+            raise Exception(
+                "item_index needs to be an int smaller than" +
+                " the length of list_items (needs to be list)"
+            )
 
         try:
             self.user_health[0] += value
         except:
-            raise Exception("user_health needs to be a list that contains" +
-            " only ints or floats.")
+            raise Exception(
+                "user_health needs to be a list that contains" +
+                " only ints or floats."
+            )
 
         try:
             self.user_health[0] > self.user_health[1]
@@ -798,143 +832,161 @@ class Tests():
 
     def test_user_movement(self):
         test_keys_pressed = keys_pressed
-        assert user_movement(1, [230, 480], [38, 40, 37, 39],
-        test_keys_pressed) == [230, 480], "There should be no change"
+        assert user_movement(
+            1, [230, 480], [38, 40, 37, 39], test_keys_pressed
+        ) == [230, 480], "There should be no change"
         test_keys_pressed[38] = True
-        assert user_movement(1, [230, 480], [38, 40, 37, 39],
-        test_keys_pressed) == [230, 479], "y position should decrease by 1"
+        assert user_movement(
+            1, [230, 480], [38, 40, 37, 39], test_keys_pressed
+        ) == [230, 479], "y position should decrease by 1"
         test_keys_pressed[38] = False
         test_keys_pressed[40] = True
-        assert user_movement(3, [230, 480], [38, 40, 37, 39],
-        test_keys_pressed) == [230, 483], "y position should increase by 3"
+        assert user_movement(
+            3, [230, 480], [38, 40, 37, 39], test_keys_pressed
+        ) == [230, 483], "y position should increase by 3"
         test_keys_pressed[40] = False
         test_keys_pressed[37] = True
-        assert user_movement(2, [230, 480], [38, 40, 37, 39],
-        test_keys_pressed) == [228, 480], "x position should decrease by 2"
+        assert user_movement(
+            2, [230, 480], [38, 40, 37, 39], test_keys_pressed
+        ) == [228, 480], "x position should decrease by 2"
         test_keys_pressed[37] = False
         test_keys_pressed[39] = True
-        assert user_movement(10, [230, 480], [38, 40, 37, 39],
-        test_keys_pressed) == [240, 480], "x position should increase by 1"
+        assert user_movement(
+            10, [230, 480], [38, 40, 37, 39], test_keys_pressed
+        ) == [240, 480], "x position should increase by 1"
 
     def test_movement_boundaries(self):
         assert movement_boundaries([230, 480], [430, 379, 210, 236], 10)\
-         == [230, 369], "y position should change to 369"
+            == [230, 369], "y position should change to 369"
         assert movement_boundaries([230, 200], [430, 379, 210, 236], 10)\
-         == [230, 246], "y position should change to 24"
+            == [230, 246], "y position should change to 24"
         assert movement_boundaries([500, 480], [430, 379, 210, 236], 10)\
-         == [420, 369], "x position should change to 420"
+            == [420, 369], "x position should change to 420"
         assert movement_boundaries([100, 480], [430, 379, 210, 236], 10)\
-         == [220, 369], "x position should change to 220"
+            == [220, 369], "x position should change to 220"
 
     def test_enemy_patch(self):
         test_enemy_class = Enemy()
         test_enemy_class.patch()
-        assert enemy_dialogue == ["Patch blocks the way!",
-         "You will be judged for your every action...", "Patch is annoyed",
-          "Patch is taken aback, surprised.", "Patch smiles at you",
-           "Patch laughs and his arrogant vibe" +
-           " dissolves into a friendly aura."],\
-         "Should be given Patch's dialogue"
-        assert test_enemy_class.act_choices == ["Taunt", "Compliment",
-         "Critcize", "Encourage"],\
-         "Should be given actions user can do against" +
-        " Patch and solution to problem"
-        assert test_enemy_class.act_solution == ["131", "", False],\
-         "Should be given Patch solution"
-        assert test_enemy_class.boxsize == 67,\
-        "Should be given Patch's boxsize."
-        assert test_enemy_class.speed == 1,\
-        "Should be given Patch's obstacle speed."
-        assert test_enemy_class.ratio_factors == [0, 8.3],\
-         "Should be given Patch's ratio."
-        assert test_enemy_class.vector_offsets == [- 110, 0, - 50, 50],\
-         "Should be given Patch's offset."
-        assert test_enemy_class.moving_direction == [1, 0],\
-         "Should be given Patch's moving direction."
+        assert enemy_dialogue == [
+            "Patch blocks the way!",
+            "You will be judged for your every action...",
+            "Patch is annoyed",
+            "Patch is taken aback, surprised.",
+            "Patch smiles at you",
+            "Patch laughs. His arrogant vibe dissolves into a friendly aura."
+            ], "Should be given Patch's dialogue"
+        assert test_enemy_class.act_choices == [
+            "Taunt", "Compliment",
+            "Critcize", "Encourage"
+            ], "Should be given actions user can do against" + \
+            " Patch and solution to problem"
+        assert test_enemy_class.act_solution == ["131", "", False], \
+            "Should be given Patch solution"
+        assert test_enemy_class.boxsize == 67, \
+            "Should be given Patch's boxsize."
+        assert test_enemy_class.speed == 1, \
+            "Should be given Patch's obstacle speed."
+        assert test_enemy_class.ratio_factors == [0, 8.3], \
+            "Should be given Patch's ratio."
+        assert test_enemy_class.vector_offsets == [- 110, 0, - 50, 50], \
+            "Should be given Patch's offset."
+        assert test_enemy_class.moving_direction == [1, 0], \
+            "Should be given Patch's moving direction."
 
     def test_enemy_rosalind(self):
         test_enemy_class = Enemy()
         test_enemy_class.rosalind()
-        assert enemy_dialogue == ["Rosalind stumbles in the way.",
-         "Rosalind apologizes.", "Rosalind cries pitifully",
-          "Rosalind cries out, still frightened",
-           "Rosalind sniffs and wipes away her tears.",
-            "Rosaline finally cracks a smile, she no longer wants to fight."],\
-         "Should be given Rosalind's dialogue"
-        assert test_enemy_class.act_choices == ["Threaten",
-         "Play", "Smile", "Hug"],\
-         "Should be given actions user can do against Rosalind and" +
-         "solution to problem"
-        assert test_enemy_class.act_solution == ["231", "", False],\
-         "Should be given Rosalind solution"
-        assert test_enemy_class.boxsize == 130,\
-         "Should be given Rosalind's boxsize."
-        assert test_enemy_class.speed == 1,\
-         "Should be given Rosalind's obstacle speed."
-        assert test_enemy_class.ratio_factors == [15.4, 0],\
-         "Should be given Rosalind's ratio."
-        assert test_enemy_class.vector_offsets == [- 110, 0, - 50, 50],\
-         "Should be given Rosalind's offset."
-        assert test_enemy_class.moving_direction == [0, 1],\
-         "Should be given Rosalind's moving direction."
+        assert enemy_dialogue == [
+            "Rosalind stumbles in the way.",
+            "Rosalind apologizes.", "Rosalind cries pitifully",
+            "Rosalind cries out, still frightened",
+            "Rosalind sniffs and wipes away her tears.",
+            "Rosaline finally cracks a smile, she no longer wants to fight."
+            ], "Should be given Rosalind's dialogue"
+        assert test_enemy_class.act_choices == [
+            "Threaten",
+            "Play", "Smile", "Hug"
+            ], "Should be given actions user can do against Rosalind and" + \
+            "solution to problem"
+        assert test_enemy_class.act_solution == ["231", "", False], \
+            "Should be given Rosalind solution"
+        assert test_enemy_class.boxsize == 130, \
+            "Should be given Rosalind's boxsize."
+        assert test_enemy_class.speed == 1, \
+            "Should be given Rosalind's obstacle speed."
+        assert test_enemy_class.ratio_factors == [15.4, 0], \
+            "Should be given Rosalind's ratio."
+        assert test_enemy_class.vector_offsets == [- 110, 0, - 50, 50], \
+            "Should be given Rosalind's offset."
+        assert test_enemy_class.moving_direction == [0, 1], \
+            "Should be given Rosalind's moving direction."
 
     def test_enemy_quack(self):
         test_enemy_class = Enemy()
         test_enemy_class.quack()
-        assert enemy_dialogue == ["Quack blocks the way!",
-         "Quack gives you an evil grin", "Quack growls at you",
-          "Quack laughs at your defiant attitude",
-           "Quack finds you very amusing",
-            "Quack no longer wants to fight."], "Should be given Quack's dialogue"
-        assert test_enemy_class.act_choices == ["Taunt", "Ignore", "Joke", "Pet"],\
-         "Should be given actions user can do against Quack and solution to problem"
-        assert test_enemy_class.act_solution == ["1323", "", False],\
-         "Should be given Quack solution"
-        assert test_enemy_class.boxsize == 33,\
-         "Should be given Quack's boxsize."
-        assert test_enemy_class.speed == 2.5,\
-         "Should be given Quack's obstacle speed."
-        assert test_enemy_class.ratio_factors == [0, 10.85],\
-         "Should be given Quack's ratio."
-        assert test_enemy_class.vector_offsets == [- 110, 0, - 80, 30],\
-         "Should be given Quack's offset."
-        assert test_enemy_class.moving_direction == [1, 0],\
-         "Should be given Quack's moving direction."
+        assert enemy_dialogue == [
+            "Quack blocks the way!",
+            "Quack gives you an evil grin", "Quack growls at you",
+            "Quack laughs at your defiant attitude",
+            "Quack finds you very amusing",
+            "Quack no longer wants to fight."
+        ], "Should be given Quack's dialogue"
+        assert test_enemy_class.act_choices == [
+            "Taunt", "Ignore", "Joke", "Pet"
+            ], \
+            "Should be given actions user can do against \
+            Quack and solution to problem"
+        assert test_enemy_class.act_solution == ["1323", "", False], \
+            "Should be given Quack solution"
+        assert test_enemy_class.boxsize == 33, \
+            "Should be given Quack's boxsize."
+        assert test_enemy_class.speed == 2.5, \
+            "Should be given Quack's obstacle speed."
+        assert test_enemy_class.ratio_factors == [0, 10.85], \
+            "Should be given Quack's ratio."
+        assert test_enemy_class.vector_offsets == [- 110, 0, - 80, 30], \
+            "Should be given Quack's offset."
+        assert test_enemy_class.moving_direction == [1, 0], \
+            "Should be given Quack's moving direction."
 
     def test_enemy_desdemona(self):
         test_enemy_class = Enemy()
         test_enemy_class.desdemona()
-        assert enemy_dialogue == ["Desdemona blocks the way!",
-         "Desmonda files her nails", "You are ignored",
-          "She glares at you, the insult hits a sore spot",
-           "Desdemona's confidence goes down", "Desdemona is getting scared",
-            "Desdemona cowers in fright."],\
-                "Should be given Desdemona's dialogue"
-        assert test_enemy_class.act_choices == ["Threaten", "Cheer",
-        "Insult", "Scare"],\
-        "Should be given actions user can do against Desdemona and" +
-        " solution to problem"
+        assert enemy_dialogue == [
+            "Desdemona blocks the way!",
+            "Desmonda files her nails", "You are ignored",
+            "She glares at you, the insult hits a sore spot",
+            "Desdemona's confidence goes down", "Desdemona is getting scared",
+            "Desdemona cowers in fright."], \
+            "Should be given Desdemona's dialogue"
+        assert test_enemy_class.act_choices == [
+            "Threaten", "Cheer",
+            "Insult", "Scare"], \
+            "Should be given actions user can do against Desdemona and" + \
+            " solution to problem"
         assert test_enemy_class.act_solution == ["2023", "". False],\
-         "Should be given Desdemona solution"
+            "Should be given Desdemona solution"
         assert test_enemy_class.boxsize == 63,\
-         "Should be given Desdemona's boxsize."
+            "Should be given Desdemona's boxsize."
         assert test_enemy_class.speed == 2.5,\
-         "Should be given Desdemona's obstacle speed."
+            "Should be given Desdemona's obstacle speed."
         assert test_enemy_class.ratio_factors == [0, 8.3],\
-         "Should be given Desdemona's ratio."
+            "Should be given Desdemona's ratio."
         assert test_enemy_class.vector_offsets == [- 110, 0, - 50, 50],\
-         "Should be given Desdemona's offset."
+            "Should be given Desdemona's offset."
         assert test_enemy_class.moving_direction == [1, 0],\
-         "Should be given Desdemona's moving direction."
+            "Should be given Desdemona's moving direction."
 
     def test_enemy_gallo(self):
         test_enemy_class = Enemy()
         test_enemy_class.gallo()
-        assert enemy_dialogue == ["Gallo blocks the way!",
-                                "Gallo takes your phone",
-                                "Gallo transcends this realm of mortals." +
-                                " Your actions are meaningless."],\
-                                "Should be given Gallo's dialogue"
+        assert enemy_dialogue == [
+            "Gallo blocks the way!",
+            "Gallo takes your phone",
+            "Gallo transcends this realm of mortals." +
+            " Your actions are meaningless."
+            ], "Should be given Gallo's dialogue"
         assert test_enemy_class.act_choices == ["Plead", "Reason",
                                                 "Talk", "Compliment"],\
             "Should be given actions user can do against Gallo and" +\
@@ -977,7 +1029,7 @@ class Tests():
         test_enemy_class = Enemy()
         test_enemy_class.collision_immune = True
         test_enemy_class.end_immunity()
-        assert test_enemy_class.collision_immune os True, "Should return True"
+        assert test_enemy_class.collision_immune is True, "Should return True"
 
     def test_reset(self):
         test_enemy_class = Enemy()

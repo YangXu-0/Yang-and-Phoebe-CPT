@@ -143,7 +143,7 @@ def draw():
             if option_selection > len(user_items.items) - 1:
                 option_selection = len(user_items.items) - 1
 
-            user_choice_pos = [56 + (151 * option_selection), 320]
+            user_choice_pos = [40 + (151 * option_selection), 309]
             draw_user(user_choice_pos[0], user_choice_pos[1])
         else:
             if enemy.act_solution[2]:

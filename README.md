@@ -1,5 +1,5 @@
 # Yang and Phoebe Grade 11 CS Cumulative Project
-This is our grade 11 computer science project. We decided to try to program a mini version of the very popular game "Undertale" in Python.
+This is our grade 11 computer science project! We decided to try to program a mini version of the very popular game "Undertale" in Python.
 
 ## Features
 - Similar openworld 2-D movement outside of combat (no animations unfortunately)
